@@ -32,10 +32,24 @@ int main(void)
 	/* TODO for higher energy efficiency, sleep while waiting for interrupts
 	   instead of infinite loop for busy-waiting
 	 */
-	while (1) ;
+	uint32_t count = 0; 
+	uint32_t lastTimerValue;
+	while (1) {
+		uint32_t timerValue = *TIMER1_CNT;
+		if(timerValue == 0 && lastTimerValue != 0){
+			count++;
+		}
+		if (count == 44000) {
+			*GPIO_PA_DOUT ^= 0xffffffff;
+			count = 0;
+		}
+		lastTimerValue= timerValue;
+	}
 
 	return 0;
 }
+
+
 
 void setupNVIC()
 {
