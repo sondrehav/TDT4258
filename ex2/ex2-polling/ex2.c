@@ -10,7 +10,7 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   0xffff
+#define   SAMPLE_PERIOD   292
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -36,12 +36,12 @@ int main(void)
 	uint32_t lastTimerValue = 0;
 	while (1) {
 		uint32_t timerValue = *TIMER1_CNT;
-		if(timerValue <= 1000 && lastTimerValue > 1000){
+		if(timerValue <= 150 && lastTimerValue > 150){
+			*DAC0_CH0DATA = count;
+			*DAC0_CH1DATA = count;
+			
 			count++;
-		}
-		if (count == 214) {
-			*GPIO_PA_DOUT ^= 0xffffffff;
-			count = 0;
+			if(count == 109) count = 0;
 		}
 		lastTimerValue = timerValue;
 	}
