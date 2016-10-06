@@ -41,7 +41,8 @@ int main(void)
 	   instead of infinite loop for busy-waiting
 	 */
 
-   int notes[] = {0, 2, 4, 5, 7, 9, 11, 12};
+   //int notes[] = {0, 2, 4, 5, 7, 9, 11, 12};
+   float notes[] = {110.0, 146.83, 261.63, 587.33, 880.0, 1318.51, 1760.0, 2349.32};
    int noteIndex = 0;
 
 	uint count = 0; 
@@ -49,9 +50,12 @@ int main(void)
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
-
-         float value = sawWave(440.0 * pow(2.0, (float) notes[noteIndex] / 12.0 ), count);
-         value *= 128.0;
+		
+		//440.0 * pow(2.0, (float) 12.0 / 12.0 )
+        //float value = sawWave(notes[noteIndex], count);
+		//float value = squareWave(440.0, count);
+		float value = sawWave(440.0, count);
+        value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
 			*DAC0_CH1DATA = (uint) value;
