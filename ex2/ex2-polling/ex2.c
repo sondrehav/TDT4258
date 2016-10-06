@@ -3,6 +3,8 @@
 
 #include "efm32gg.h"
 
+#include "math.h"
+
 /* 
   TODO calculate the appropriate sample period for the sound wave(s) 
   you want to generate. The core clock (which the timer clock is derived
@@ -21,6 +23,7 @@ void setupNVIC();
 
 float sawWave(float frequency, uint time);
 float squareWave(float frequency, uint time);
+float triangleWave(float frequency, uint time);
 
 /* Your code will start executing here */
 int main(void)
@@ -68,6 +71,14 @@ float squareWave(float frequency, uint time)
    uint dt = time % (uint)d;
    if(dt < d/2) return 0.0;
    else return 1.0;
+}
+
+float triangleWave(float frequency, uint time)
+{
+   float d = (float) 48000 / frequency;
+   uint dt = time % (uint)d;
+   if(dt < d/2) return 2.0 * (float)dt / d;
+   else return 2.0 * (float)(1-dt) / d;
 }
 
 void setupNVIC()
