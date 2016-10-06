@@ -20,6 +20,7 @@ void setupDAC();
 void setupNVIC();
 
 float sawWave(float frequency, uint time);
+float squareWave(float frequency, uint time);
 
 /* Your code will start executing here */
 int main(void)
@@ -41,7 +42,8 @@ int main(void)
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         float value = sawWave(440.0 * sawWave(10.0, count) + 440.0, count);
+         float value = sawWave(440.0 * sawWave(0.1, count) + 440.0, count);
+		 value += squareWave(440.0, count);
          value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
@@ -58,6 +60,14 @@ float sawWave(float frequency, uint time)
 {
    float d = (float) 48000 / frequency;
    return (float)(time % (uint)d) / d;
+}
+
+float squareWave(float frequency, uint time)
+{
+   float d = (float) 48000 / frequency;
+   uint dt = time % d;
+   if(dt < d/2) return 0.0;
+   else return 1.0;
 }
 
 void setupNVIC()
