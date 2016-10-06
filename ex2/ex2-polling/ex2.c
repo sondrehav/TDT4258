@@ -11,14 +11,15 @@
 */
 /* The period between sound samples, in clock cycles */
 #define   SAMPLE_PERIOD   292
+typedef uint uint;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
-void setupTimer(uint32_t period);
+void setupTimer(uint period);
 void setupDAC();
 void setupNVIC();
 
-uint32_t sawWave(float frequency);
+float sawWave(float frequency, uint time);
 
 /* Your code will start executing here */
 int main(void)
@@ -34,36 +35,30 @@ int main(void)
 	/* TODO for higher energy efficiency, sleep while waiting for interrupts
 	   instead of infinite loop for busy-waiting
 	 */
-	uint32_t count = 0; 
-	uint32_t lastTimerValue = 0;
+	uint count = 0; 
+	uint lastTimerValue = 0;
 	while (1) {
-		uint32_t timerValue = *TIMER1_CNT;
+		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         uint32_t value = sawWave(440.0);
+         float value = sawWave(440.0);
+         value += sawWave(440.0);
+         value *= 128.0;
 
-			*DAC0_CH0DATA = value;
-			*DAC0_CH0DATA = value;
+			*DAC0_CH0DATA = (uint) value;
+			*DAC0_CH1DATA = (uint) value;
 			
 			count++;
-			if(count == 109) {
-            count = 0;
-         }
 		}
 		lastTimerValue = timerValue;
 	}
 	return 0;
 }
 
-uint32_t saw_count = 0;
-uint32_t sawWave(float frequency)
+float sawWave(float frequency, uint time)
 {
    float d = (float) 48000 / frequency;
-   saw_count += 1;
-   if(saw_count >= (uint32_t)d) {
-      saw_count = 0;
-   }
-   return saw_count;
+   return (float)(time % (uint)d) / d;
 }
 
 void setupNVIC()
