@@ -61,8 +61,8 @@ void process(float* output, uint32_t samples)
    float frequency = 440.0;
    for (int i = 0; i < samples; ++i)
    {
-      int val = i % ((float)samples / frequency);
-      *output = 2.0 * (float)i * frequency / samples - 1.0;
+      int val = i % (int)(0.5 + (float)samples / frequency);
+      *output = 2.0 * (float)val * frequency / samples - 1.0;
    }
 }
 
