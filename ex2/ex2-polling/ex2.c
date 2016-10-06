@@ -18,7 +18,7 @@ void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
 
-float sawWave(float frequency);
+uint32_t sawWave(float frequency);
 
 /* Your code will start executing here */
 int main(void)
@@ -40,11 +40,10 @@ int main(void)
 		uint32_t timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         float value = sawWave(440.0) * 0.5 + 0.5;
-         value *= 64.0;
+         uint32_t value = sawWave(440.0);
 
-			*DAC0_CH0DATA = (uint32_t) (value + 0.5);
-			*DAC0_CH0DATA = (uint32_t) (value + 0.5);
+			*DAC0_CH0DATA = value;
+			*DAC0_CH0DATA = value;
 			
 			count++;
 			if(count == 109) {
@@ -56,15 +55,15 @@ int main(void)
 	return 0;
 }
 
-int saw_count = 0;
-float sawWave(float frequency)
+uint32_t saw_count = 0;
+uint32_t sawWave(float frequency)
 {
    float d = (float) 48000 / frequency;
    saw_count += 1;
-   if((int)d >= saw_count) {
+   if((uint32_t)d >= saw_count) {
       saw_count = 0;
    }
-   return 2.0 * (float)saw_count / d - 1.0;
+   return saw_count;
 }
 
 void setupNVIC()
