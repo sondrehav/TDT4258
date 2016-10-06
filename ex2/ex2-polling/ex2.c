@@ -53,7 +53,6 @@ int main(void)
 		}
 		lastTimerValue = timerValue;
 	}
-   free(output);
 	return 0;
 }
 
@@ -61,20 +60,11 @@ int saw_count = 0;
 float sawWave(float frequency)
 {
    float d = (float) 48000 / frequency;
-   if((int)d >= sq_count) {
+   saw_count += 1;
+   if((int)d >= saw_count) {
       saw_count = 0;
    }
    return 2.0 * (float)saw_count / d - 1.0;
-}
-
-void process(float* output, uint32_t samples)
-{
-   float frequency = 440.0;
-   for (int i = 0; i < samples; ++i)
-   {
-      int val = i % (int)(0.5 + (float)samples / frequency);
-      *output = 2.0 * (float)val * frequency / samples - 1.0;
-   }
 }
 
 void setupNVIC()
