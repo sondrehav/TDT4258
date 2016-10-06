@@ -41,8 +41,8 @@ int main(void)
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         float value = sawWave(440.0);
-         value += sawWave(440.0);
+         float value = sawWave(440.0), count;
+         value += sawWave(440.0 * 1.4, count);
          value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
