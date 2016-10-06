@@ -11,7 +11,7 @@
 */
 /* The period between sound samples, in clock cycles */
 #define   SAMPLE_PERIOD   292
-typedef uint uint;
+typedef uint32_t uint;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -41,8 +41,7 @@ int main(void)
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         float value = sawWave(440.0), count;
-         value += sawWave(440.0 * 1.4, count);
+         float value = sawWave(440.0 * sawWave(10.0, count) + 440.0, count);
          value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
