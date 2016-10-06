@@ -65,7 +65,7 @@ float sawWave(float frequency, uint time)
 float squareWave(float frequency, uint time)
 {
    float d = (float) 48000 / frequency;
-   uint dt = time % d;
+   uint dt = time % (uint)d;
    if(dt < d/2) return 0.0;
    else return 1.0;
 }
