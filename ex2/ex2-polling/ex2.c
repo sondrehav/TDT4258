@@ -18,6 +18,8 @@ void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
 
+void process(float* output, uint32_t samples);
+
 /* Your code will start executing here */
 int main(void)
 {
@@ -34,22 +36,35 @@ int main(void)
 	 */
 	uint32_t count = 0; 
 	uint32_t lastTimerValue = 0;
+   float* output = (float*) malloc(sizeof(float) * 48000);
+   process(output, 48000);
 	while (1) {
 		uint32_t timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
-			*DAC0_CH0DATA = count;
-			*DAC0_CH1DATA = count;
+
+			*DAC0_CH0DATA = (uint32_t)(output[count] * 32.0 + 32.0);
+			*DAC0_CH0DATA = (uint32_t)(output[count] * 32.0 + 32.0);
 			
 			count++;
-			if(count == 109) count = 0;
+			if(count == 48000) {
+            count = 0;
+         }
 		}
 		lastTimerValue = timerValue;
 	}
-
+   free(output);
 	return 0;
 }
 
-
+void process(float* output, uint32_t samples)
+{
+   float frequency = 440.0;
+   for (int i = 0; i < samples; ++i)
+   {
+      int val = i % ((float)samples / frequency);
+      *output = 2.0 * (float)i * frequency / samples - 1.0;
+   }
+}
 
 void setupNVIC()
 {
