@@ -60,7 +60,7 @@ uint32_t sawWave(float frequency)
 {
    float d = (float) 48000 / frequency;
    saw_count += 1;
-   if((uint32_t)d >= saw_count) {
+   if(saw_count >= (uint32_t)d) {
       saw_count = 0;
    }
    return saw_count;
