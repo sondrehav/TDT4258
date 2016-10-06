@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "math.h"
 #include "efm32gg.h"
 
 /* 
@@ -36,20 +37,30 @@ int main(void)
 	/* TODO for higher energy efficiency, sleep while waiting for interrupts
 	   instead of infinite loop for busy-waiting
 	 */
+
+   int notes[] = {0, 2, 4, 5, 7, 9, 11, 12};
+   int noteIndex = 0;
+
 	uint count = 0; 
 	uint lastTimerValue = 0;
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 
-         float value = sawWave(440.0 * sawWave(0.1, count) + 440.0, count);
-		 value += squareWave(440.0, count);
+         float value = sawWave(440.0 * pow(2, (float) notes[noteIndex] / 12.0 ), count);
          value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
 			*DAC0_CH1DATA = (uint) value;
 			
 			count++;
+         if((count % 24000) == 0) 
+         {
+            noteIndex++;
+            if(noteIndex > 8) {
+               noteIndex = 0;
+            }
+         }
 		}
 		lastTimerValue = timerValue;
 	}
