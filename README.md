@@ -1,2 +1,2 @@
 # TDT4258
-Kok for TDT4258
+Exercises for TDT4258
