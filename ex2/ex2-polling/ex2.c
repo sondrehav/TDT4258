@@ -10,6 +10,7 @@ typedef uint32_t uint;
 typedef uint32_t fp;
 
 static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
+static const uint volume = 128;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -35,6 +36,13 @@ void setupDAC();
 	normal multiplication can be used.
 */
 extern fp fixed_point_mul(fp a, fp b);
+
+/*
+	Function for dividing one fixed point number by another,
+	and returning a fixed point number.
+	It uses floating point numbers internally.
+*/
+fp fixed_point_division(fp a, fp b);
 
 /*
 	Returns frequency of note in specified octave, tuned to A4 = 440Hz.
@@ -90,10 +98,15 @@ int main(void)
 
 
 
-void pushDataToDAC(uint count)
+void pushDataToDAC(uint time)
 {
-	*DAC0_CH0DATA = count%109;
-	*DAC0_CH1DATA = count%109;
+	fp fq = getFrequency(9, 4);
+	fp sum = sawWave(fq, time);
+	fp sum += squareWave(fq, time);
+	
+	uint value = (sum*volume) >> 16;
+	*DAC0_CH0DATA = value;
+	*DAC0_CH1DATA = value;
 }
 
 
@@ -137,4 +150,10 @@ fp getFrequency(uint note, uint octave)
 	82570, 87480, 92682, 98193, 104032, 110218, 116772, 123715};
 	
 	return fixed_point_mul(res, note_const[note]); // Multiply with 2^(note/12).
+}
+
+fp fixed_point_division(fp a, fp b)
+{
+	float res = (float)a / float(b);
+	return (fp)(res*2^16);
 }
