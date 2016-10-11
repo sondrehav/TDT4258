@@ -9,7 +9,7 @@
 typedef uint32_t uint;
 typedef uint32_t fp;
 
-static const sample_rate = 14000000 / SAMPLE_PERIOD;
+static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
