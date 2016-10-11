@@ -4,6 +4,7 @@
 
 CC=arm-none-eabi-gcc
 LD=arm-none-eabi-gcc
+AS=arm-none-eabi-as
 OBJCOPY=arm-none-eabi-objcopy
 
 CFLAGS=-mcpu=cortex-m3 -mthumb -g -std=c99 -Wall
@@ -14,8 +15,11 @@ LINKERSCRIPT=lib/efm32gg.ld
 ex2.bin : ex2.elf
 	${OBJCOPY} -O binary $< $@
 
-ex2.elf : ex2.o timer.o dac.o gpio.o interrupt_handlers.o
+ex2.elf : ex2.o timer.o dac.o gpio.o interrupt_handlers.o fixed_point_mul.o
 	${LD} -T ${LINKERSCRIPT} $^ -o $@ ${LDFLAGS} 
+
+%.o : %.s
+	${AS} ${ASFLAGS} $< -o $@
 
 %.o : %.c
 	${CC} ${CFLAGS} -c $< -o $@
