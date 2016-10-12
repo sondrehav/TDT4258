@@ -51,6 +51,7 @@ fp fixed_point_division(fp a, fp b);
 	C = 0, c# = 1, D = 2, D# = 3, E = 4, F = 5, F# = 6, G = 7, G# = 8, A = 9, A# = 10, B = 11
 */
 fp getFrequency(uint note, uint octave);
+fp getFreqNote(uint note);
 
 /*
 	Function called when new data should be pushed to the DAC.
@@ -58,6 +59,7 @@ fp getFrequency(uint note, uint octave);
 	time is the time sinze the start in sample rate ticks.
 */
 void pushDataToDAC(uint time);
+void playBeat(uint beat_index, uint time);
 
 /*
 	Functions for generating waveforms.
@@ -70,6 +72,10 @@ fp sawWave(fp frequency, uint time);
 fp squareWave(fp frequency, uint time);
 fp triangleWave(fp frequency, uint time);
 
+uint beats[] = {0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120};
+uint beat_count = 11;
+uint bpm = 120;
+
 int main(void)
 {
 	/* Call the peripheral setup functions */
@@ -80,12 +86,24 @@ int main(void)
 	// Polling loop
 	uint count = 0; 
 	uint lastTimerValue = 0;
+	
+	uint beat_period = sample_rate * 60 / bpm;
+	uint beat_period_counter = 0;
+	uint beat_index = 0;
+	
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
 		
 		// Check if new data should be pushed to the DAC.
 		if (timerValue <= 150 && lastTimerValue > 150) {
-			pushDataToDAC(count);
+			playBeat(beat_index, count);
+			
+			beat_period_counter++;
+			if (beat_period_counter == beat_period) {
+				beat_period_counter = 0;
+				beat_index++;
+				if (beat_index == beat_count) beat_index = 0;
+			}
 			
 			if (count == 4294967295) count = 0;
 			else count++;
@@ -96,14 +114,13 @@ int main(void)
 	return 0;
 }
 
-void pushDataToDAC(uint time)
+void playBeat(uint beat_index, uint time)
 {
-	fp fq = getFrequency(11, 3);
+	fp fq = getFreqNote(beats[beat_index]);
 	fp sum = sawWave(fq, time);
-	//sum += squareWave(fq, time);
 	uint value = (sum*volume) >> 16;
 	*DAC0_CH0DATA = value;
-	*DAC0_CH1DATA = value;
+	*DAC0_CH1DATA = value;	
 }
 
 
@@ -134,8 +151,13 @@ fp triangleWave(fp frequency, uint time)
 
 
 
-fp getFrequency(uint note, uint octave)
+fp getFreqNote(uint note)
 {
+	return getFrequency(note%12, note/12);
+}
+
+fp getFrequency(uint note, uint octave)
+{	
 	// 440 * 2^((octave*12 + note - 57)/12) =
 	// 440 / 2^(57/12) * 2^octave * 2^(note/12)
 	
