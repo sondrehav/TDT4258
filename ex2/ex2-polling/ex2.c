@@ -1,164 +1,156 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "math.h"
 #include "efm32gg.h"
 
-#include "math.h"
-
-/* 
-  TODO calculate the appropriate sample period for the sound wave(s) 
-  you want to generate. The core clock (which the timer clock is derived
-  from) runs at 14 MHz by default. Also remember that the timer counter
-  registers are 16 bits.
-*/
 /* The period between sound samples, in clock cycles */
-#define  SAMPLE_PERIOD  292
-#define  SAMPLES        48000
+#define	SAMPLE_PERIOD	292 // 14 MHz / 292 = 48 KHz
+
 typedef uint32_t uint;
+typedef uint32_t fp;
+
+static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
+static const uint volume = 128;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
-void setupTimer(uint period);
+void setupTimer(uint32_t period);
 void setupDAC();
-void setupNVIC();
 
-float sawWave(float frequency, uint time);
-float squareWave(float frequency, uint time);
-float triangleWave(float frequency, uint time);
+/*
+	This implementation uses a fixed point number format.
+	It stores positive numbers in a uint32_t, with 16 bit before and after the radix point.
+	A whole positive number can be converted to the fixed point format,
+	by bit shifting left, or multiply by 2^16.
+	And back, by bit shifting right, or divide by 2^16.
+	The format does not store negative numbers.
+	This is done to avoid having to use slow floating point numbers.
+	It is specified when a function takes, or returns, this format.
+*/
 
-float sawWave2(uint period, uint time);
+/*
+	Declaration of fixed point multiplication, implemented in fixed_point_mul.s
+	Used to multiply two fixed point numbers.
+	Also returns a fixed point number.
+	For multiplication between a fixed point and a normal number,
+	normal multiplication can be used.
+*/
+extern fp fixed_point_mul(fp a, fp b);
 
-/* Your code will start executing here */
+/*
+	Function for dividing one fixed point number by another,
+	and returning a fixed point number.
+	It uses floating point numbers internally.
+*/
+fp fixed_point_division(fp a, fp b);
+
+/*
+	Returns frequency of note in specified octave, tuned to A4 = 440Hz.
+	Takes normal numbers, and return fixed point number.
+	Note should be a value from 0-11 with the following value:
+	C = 0, c# = 1, D = 2, D# = 3, E = 4, F = 5, F# = 6, G = 7, G# = 8, A = 9, A# = 10, B = 11
+*/
+fp getFrequency(uint note, uint octave);
+
+/*
+	Function called when new data should be pushed to the DAC.
+	Function is called at the sample rate, 48 KHz.
+	time is the time sinze the start in sample rate ticks.
+*/
+void pushDataToDAC(uint time);
+
+/*
+	Functions for generating waveforms.
+	They take a frequency in fixed point format,
+	and a time in sample rate ticks,
+	and return a value between 0 and 1,
+	in fixed point format.
+*/
+fp sawWave(fp frequency, uint time);
+fp squareWave(fp frequency, uint time);
+fp triangleWave(fp frequency, uint time);
+
 int main(void)
 {
 	/* Call the peripheral setup functions */
 	setupGPIO();
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
-
-	/* Enable interrupt handling */
-	setupNVIC();
-
-	/* TODO for higher energy efficiency, sleep while waiting for interrupts
-	   instead of infinite loop for busy-waiting
-	 */
-
-   //int notes[] = {0, 2, 4, 5, 7, 9, 11, 12};
-   //float notes[] = {110.0, 146.83, 261.63, 587.33, 880.0, 1318.51, 1760.0, 2349.32};
-
+	
+	// Polling loop
+	uint count = 0; 
 	uint lastTimerValue = 0;
-
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
-		if(timerValue <= 150 && lastTimerValue > 150){
 		
-         //440.0 * pow(2.0, (float) 12.0 / 12.0 )
-         //float value = sawWave(notes[noteIndex], count);
-         //float value = squareWave(440.0, count);
-         float value = sawWave(440.0, count);
-         value *= 128.0;
-
-			*DAC0_CH0DATA = (uint) value;
-			*DAC0_CH1DATA = (uint) 0;
+		// Check if new data should be pushed to the DAC.
+		if (timerValue <= 150 && lastTimerValue > 150) {
+			pushDataToDAC(count);
 			
-			count++;
-         
+			if (count == 4294967295) count = 0;
+			else count++;
 		}
 		lastTimerValue = timerValue;
 	}
+
 	return 0;
 }
 
-float sawWave(float frequency, uint time)
+void pushDataToDAC(uint time)
 {
-   float d = (float) SAMPLES / frequency;
-   return (float)(time % (uint)d) / d;
+	fp fq = getFrequency(11, 3);
+	fp sum = sawWave(fq, time);
+	//sum += squareWave(fq, time);
+	uint value = (sum*volume) >> 16;
+	*DAC0_CH0DATA = value;
+	*DAC0_CH1DATA = value;
 }
 
-float sawWave2(uint period, uint time) {
-   return (float)(time % period) / (float)period;
-}
 
-float squareWave(float frequency, uint time)
+
+fp sawWave(fp frequency, uint time)
 {
-   float d = (float) SAMPLES / frequency;
-   uint dt = time % (uint)d;
-   if(dt < d/2) return 0.0;
-   else return 1.0;
+	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	fp value = (time % period) << 16; // Value is in range 0 to period.
+	value /= period; // Value is in range 0 to 1.
+	return value;
 }
 
-float triangleWave(float frequency, uint time)
+fp squareWave(fp frequency, uint time)
 {
-   float d = (float) SAMPLES / frequency;
-   uint dt = time % (uint)d;
-   if(dt < d/2) return 2.0 * (float)dt / d;
-   else return 2.0 * (float)(1-dt) / d;
+	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	uint time_point = (time % period); // Find time point in period.
+	if (time_point < period / 2) return 0;
+	else return 1<<16;
 }
 
-void setupNVIC()
+fp triangleWave(fp frequency, uint time)
 {
-	/* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
-	   remember two things are necessary for interrupt handling:
-	   - the peripheral must generate an interrupt signal
-	   - the NVIC must be configured to make the CPU handle the signal
-	   You will need TIMER1, GPIO odd and GPIO even interrupt handling for this
-	   assignment.
-	 */
+	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	uint time_point = (time % period); // Find time point in period.
+	if (time_point < period / 2) return time_point<<17 / period;
+	else return (period-time_point)<<17 / period;
 }
 
-/* if other interrupt handlers are needed, use the following names: 
-   NMI_Handler
-   HardFault_Handler
-   MemManage_Handler
-   BusFault_Handler
-   UsageFault_Handler
-   Reserved7_Handler
-   Reserved8_Handler
-   Reserved9_Handler
-   Reserved10_Handler
-   SVC_Handler
-   DebugMon_Handler
-   Reserved13_Handler
-   PendSV_Handler
-   SysTick_Handler
-   DMA_IRQHandler
-   GPIO_EVEN_IRQHandler
-   TIMER0_IRQHandler
-   USART0_RX_IRQHandler
-   USART0_TX_IRQHandler
-   USB_IRQHandler
-   ACMP0_IRQHandler
-   ADC0_IRQHandler
-   DAC0_IRQHandler
-   I2C0_IRQHandler
-   I2C1_IRQHandler
-   GPIO_ODD_IRQHandler
-   TIMER1_IRQHandler
-   TIMER2_IRQHandler
-   TIMER3_IRQHandler
-   USART1_RX_IRQHandler
-   USART1_TX_IRQHandler
-   LESENSE_IRQHandler
-   USART2_RX_IRQHandler
-   USART2_TX_IRQHandler
-   UART0_RX_IRQHandler
-   UART0_TX_IRQHandler
-   UART1_RX_IRQHandler
-   UART1_TX_IRQHandler
-   LEUART0_IRQHandler
-   LEUART1_IRQHandler
-   LETIMER0_IRQHandler
-   PCNT0_IRQHandler
-   PCNT1_IRQHandler
-   PCNT2_IRQHandler
-   RTC_IRQHandler
-   BURTC_IRQHandler
-   CMU_IRQHandler
-   VCMP_IRQHandler
-   LCD_IRQHandler
-   MSC_IRQHandler
-   AES_IRQHandler
-   EBI_IRQHandler
-   EMU_IRQHandler
-*/
+
+
+fp getFrequency(uint note, uint octave)
+{
+	// 440 * 2^((octave*12 + note - 57)/12) =
+	// 440 / 2^(57/12) * 2^octave * 2^(note/12)
+	
+	fp res = 1071618; // 440 / 2^(57/12) in fixed point form.
+	res <<= octave; // Multiply with 2^octave.
+	
+	// Table of 2^(note/12) for note=0 to note=11, in fixed point form.
+	static const fp note_const[] = {65536, 69433, 73562, 77936,
+	82570, 87480, 92682, 98193, 104032, 110218, 116772, 123715};
+	
+	return fixed_point_mul(res, note_const[note]); // Multiply with 2^(note/12).
+}
+
+fp fixed_point_division(fp a, fp b)
+{
+	float res = (float)a / (float)b;
+	return (fp)(res*(1<<16));
+}
