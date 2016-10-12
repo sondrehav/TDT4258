@@ -46,6 +46,7 @@ void setupNVIC()
 	   You will need TIMER1, GPIO odd and GPIO even interrupt handling for this
 	   assignment.
 	 */
+	*ISER0 = 0x802;
 }
 
 /* if other interrupt handlers are needed, use the following names: 

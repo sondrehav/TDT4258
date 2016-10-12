@@ -13,7 +13,8 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   292
+#define  SAMPLE_PERIOD  292
+#define  SAMPLES        48000
 typedef uint32_t uint;
 
 /* Declaration of peripheral setup functions */
@@ -25,6 +26,8 @@ void setupNVIC();
 float sawWave(float frequency, uint time);
 float squareWave(float frequency, uint time);
 float triangleWave(float frequency, uint time);
+
+float sawWave2(uint period, uint time);
 
 /* Your code will start executing here */
 int main(void)
@@ -42,32 +45,25 @@ int main(void)
 	 */
 
    //int notes[] = {0, 2, 4, 5, 7, 9, 11, 12};
-   float notes[] = {110.0, 146.83, 261.63, 587.33, 880.0, 1318.51, 1760.0, 2349.32};
-   int noteIndex = 0;
+   //float notes[] = {110.0, 146.83, 261.63, 587.33, 880.0, 1318.51, 1760.0, 2349.32};
 
-	uint count = 0; 
 	uint lastTimerValue = 0;
+
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
 		if(timerValue <= 150 && lastTimerValue > 150){
 		
-		//440.0 * pow(2.0, (float) 12.0 / 12.0 )
-        //float value = sawWave(notes[noteIndex], count);
-		//float value = squareWave(440.0, count);
-		float value = sawWave(440.0, count);
-        value *= 128.0;
+         //440.0 * pow(2.0, (float) 12.0 / 12.0 )
+         //float value = sawWave(notes[noteIndex], count);
+         //float value = squareWave(440.0, count);
+         float value = sawWave(440.0, count);
+         value *= 128.0;
 
 			*DAC0_CH0DATA = (uint) value;
-			*DAC0_CH1DATA = (uint) value;
+			*DAC0_CH1DATA = (uint) 0;
 			
 			count++;
-         if((count % 24000) == 0) 
-         {
-            noteIndex++;
-            if(noteIndex >= 8) {
-               noteIndex = 0;
-            }
-         }
+         
 		}
 		lastTimerValue = timerValue;
 	}
@@ -76,13 +72,17 @@ int main(void)
 
 float sawWave(float frequency, uint time)
 {
-   float d = (float) 48000 / frequency;
+   float d = (float) SAMPLES / frequency;
    return (float)(time % (uint)d) / d;
+}
+
+float sawWave2(uint period, uint time) {
+   return (float)(time % period) / (float)period;
 }
 
 float squareWave(float frequency, uint time)
 {
-   float d = (float) 48000 / frequency;
+   float d = (float) SAMPLES / frequency;
    uint dt = time % (uint)d;
    if(dt < d/2) return 0.0;
    else return 1.0;
@@ -90,7 +90,7 @@ float squareWave(float frequency, uint time)
 
 float triangleWave(float frequency, uint time)
 {
-   float d = (float) 48000 / frequency;
+   float d = (float) SAMPLES / frequency;
    uint dt = time % (uint)d;
    if(dt < d/2) return 2.0 * (float)dt / d;
    else return 2.0 * (float)(1-dt) / d;
