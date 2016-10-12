@@ -96,14 +96,11 @@ int main(void)
 	return 0;
 }
 
-
-
 void pushDataToDAC(uint time)
 {
-	fp fq = getFrequency(9, 4);
+	fp fq = getFrequency(11, 3);
 	fp sum = sawWave(fq, time);
-	fp sum += squareWave(fq, time);
-	
+	//sum += squareWave(fq, time);
 	uint value = (sum*volume) >> 16;
 	*DAC0_CH0DATA = value;
 	*DAC0_CH1DATA = value;
@@ -127,7 +124,7 @@ fp squareWave(fp frequency, uint time)
 	else return 1<<16;
 }
 
-fp triangleWave(fp frequency, uint time);
+fp triangleWave(fp frequency, uint time)
 {
 	uint period = (sample_rate << 16) / frequency; // Find wave period.
 	uint time_point = (time % period); // Find time point in period.
@@ -154,6 +151,6 @@ fp getFrequency(uint note, uint octave)
 
 fp fixed_point_division(fp a, fp b)
 {
-	float res = (float)a / float(b);
-	return (fp)(res*2^16);
+	float res = (float)a / (float)b;
+	return (fp)(res*(1<<16));
 }
