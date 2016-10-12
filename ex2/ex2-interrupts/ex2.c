@@ -10,7 +10,7 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   0
+#define   SAMPLE_PERIOD   7000000
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
