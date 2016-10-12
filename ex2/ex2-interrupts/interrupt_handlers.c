@@ -26,5 +26,6 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
 	/* TODO handle button pressed event, remember to clear pending interrupt */
+	*GPIO_PA_DOUT = 0xffffffff ^ *GPIO_PA_DOUT;
 	*GPIO_IFC = *GPIO_IF;
 }
