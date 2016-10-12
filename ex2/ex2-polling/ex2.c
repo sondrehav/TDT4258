@@ -9,6 +9,14 @@
 typedef uint32_t uint;
 typedef uint32_t fp;
 
+typedef struct Song
+{
+	uint* song;
+	uint length;
+	uint tempo;
+	bool looping;
+} Song_t;
+
 static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
 static const uint volume = 128;
 
@@ -72,9 +80,12 @@ fp sawWave(fp frequency, uint time);
 fp squareWave(fp frequency, uint time);
 fp triangleWave(fp frequency, uint time);
 
-uint beats[] = {0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120};
-uint beat_count = 11;
-uint bpm = 120;
+uint songData[] = {
+	48, 50, 52, 53, 55, 55, 55, 55, 57, 57, 57, 57, 
+	55, 55, 55, 55, 53, 53, 53, 53, 52, 52, 52, 52, 
+	50, 50, 50, 50, 48, 48, 48, 48
+};
+Song_t song = {songData, 32, 120, 1};
 
 int main(void)
 {
@@ -87,7 +98,7 @@ int main(void)
 	uint count = 0; 
 	uint lastTimerValue = 0;
 	
-	uint beat_period = sample_rate * 60 / bpm;
+	uint beat_period = sample_rate * 60 / song.tempo;
 	uint beat_period_counter = 0;
 	uint beat_index = 0;
 	
@@ -102,10 +113,10 @@ int main(void)
 			if (beat_period_counter == beat_period) {
 				beat_period_counter = 0;
 				beat_index++;
-				if (beat_index == beat_count) beat_index = 0;
+				if (beat_index == song.length) beat_index = 0;
 			}
 			
-			if (count == 4294967295) count = 0;
+			if (count == 0xffffffff) count = 0;
 			else count++;
 		}
 		lastTimerValue = timerValue;
@@ -116,7 +127,7 @@ int main(void)
 
 void playBeat(uint beat_index, uint time)
 {
-	fp fq = getFreqNote(beats[beat_index]);
+	fp fq = getFreqNote(song.song[beat_index]);
 	fp sum = sawWave(fq, time);
 	uint value = (sum*volume) >> 16;
 	*DAC0_CH0DATA = value;
