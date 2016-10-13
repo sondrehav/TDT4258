@@ -1,5 +1,4 @@
-#ifndef SOUND_GENERATOR_H
-#define SOUND_GENERATOR_H
+#include "sound_generator.h"
 
 fp sawWave(fp frequency, uint time)
 {

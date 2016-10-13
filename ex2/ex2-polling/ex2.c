@@ -7,12 +7,7 @@
 
 #include "ex2.h"
 
-/* The period between sound samples, in clock cycles */
-#define	SAMPLE_PERIOD	292 // 14 MHz / 292 = 48 KHz
 
-
-static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
-static const uint volume = 128;
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -76,7 +71,7 @@ void playBeat(uint beat_index, uint time)
 {
 	fp fq = getFreqNote(song.song[beat_index]);
 	fp sum = sawWave(fq, time);
-	uint value = (sum*volume) >> 16;
+	uint value = (sum*VOLUME) >> 16;
 	*DAC0_CH0DATA = value;
 	*DAC0_CH1DATA = value;	
 }
