@@ -40,7 +40,7 @@ int main(void)
 	uint count = 0; 
 	uint lastTimerValue = 0;
 	
-	uint beat_period = sample_rate * 60 / song.tempo;
+	uint beat_period = SAMPLE_RATE * 60 / song.tempo;
 	uint beat_period_counter = 0;
 	uint beat_index = 0;
 	
