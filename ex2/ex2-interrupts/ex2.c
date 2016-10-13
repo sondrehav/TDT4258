@@ -1,7 +1,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "sound_generator.h"
+
 #include "efm32gg.h"
+
+#include "ex2.h"
 
 /* 
   TODO calculate the appropriate sample period for the sound wave(s) 
@@ -10,7 +14,6 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD 292
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
