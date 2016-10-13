@@ -16,10 +16,3 @@ typedef struct Song
 } Song_t;
 
 #endif
-
-typedef struct musicPlayer
-{
-	Song* song;
-	uint currentTime;
-	
-} musicPlayer_t;
