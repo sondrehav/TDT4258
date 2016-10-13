@@ -1,5 +1,7 @@
 #include "sound_generator.h"
 
+static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
+
 fp sawWave(fp frequency, uint time)
 {
 	uint period = (sample_rate << 16) / frequency; // Find wave period.
