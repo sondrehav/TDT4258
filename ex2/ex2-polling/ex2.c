@@ -6,6 +6,8 @@
 /* The period between sound samples, in clock cycles */
 #define	SAMPLE_PERIOD	292 // 14 MHz / 292 = 48 KHz
 
+
+
 typedef uint32_t uint;
 typedef uint32_t fp;
 
@@ -66,7 +68,6 @@ fp getFreqNote(uint note);
 	Function is called at the sample rate, 48 KHz.
 	time is the time sinze the start in sample rate ticks.
 */
-void pushDataToDAC(uint time);
 void playBeat(uint beat_index, uint time);
 
 /*
