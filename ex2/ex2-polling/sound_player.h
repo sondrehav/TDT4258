@@ -1,6 +1,8 @@
 # ifndef SOUND_PLAYER_H
 # define SOUND_PLAYER_H
 
+#include "sound_generator.h"
+
 enum SoundType {
 	Saw, Triangle, Square
 };
@@ -34,5 +36,9 @@ typedef struct Audio
 	uint soundCount;
 	uint volume;
 } audio_t;
+
+void initSoundPlayer(SoundPlayer* player, Song* song, SoundType soundType);
+fp playSong(SoundPlayer* player, uint time);
+void playAudio(Audio* audio, uint time);
 
 #endif

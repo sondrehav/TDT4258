@@ -5,7 +5,7 @@ void initSoundPlayer(SoundPlayer* player, Song* song, SoundType soundType) {
 	player->state = running;
 	player->noteIndex = 0;
 	player->noteCounter = 0;
-	player->notePeriod = sampleRate * 60 / song->tempo;
+	player->notePeriod = SAMPLE_RATE * 60 / song->tempo;
 	player->soundType = soundType;
 }
 
