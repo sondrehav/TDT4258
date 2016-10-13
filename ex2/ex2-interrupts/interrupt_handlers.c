@@ -20,10 +20,7 @@ uint songData[] = {
 Song_t song = {songData, 32, 120, 1};
 
 uint32_t beat_period_counter = 0;
-uint32_t count = 0;
 uint32_t beat_index = 0;
-uint beat_period = SAMPLE_RATE * 60 / song.tempo;
-
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
@@ -31,7 +28,11 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	   TODO feed new samples to the DAC
 	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC
 	 */
-	playBeat(beat_index, count);
+
+	uint timerValue = *TIMER1_CNT / SAMPLE_PERIOD;
+
+	uint beat_period = SAMPLE_RATE * 60 / song.tempo;
+	playBeat(beat_index, timerValue);
 			
 	beat_period_counter++;
 	if (beat_period_counter == beat_period) {
@@ -40,9 +41,6 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 		if (beat_index == song.length) beat_index = 0;
 	}
 	
-	if (count == 0xffffffff) count = 0;
-	else count++;
-
 	*TIMER1_IFC = 0x1;
 }
 
