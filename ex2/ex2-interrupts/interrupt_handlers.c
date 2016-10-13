@@ -20,7 +20,9 @@ uint songData[] = {
 Song_t song = {songData, 32, 120, 1};
 
 uint32_t beat_period_counter = 0;
+uint32_t count = 0;
 uint32_t beat_index = 0;
+
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
@@ -29,10 +31,8 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC
 	 */
 
-	uint timerValue = *TIMER1_CNT / SAMPLE_PERIOD;
-
 	uint beat_period = SAMPLE_RATE * 60 / song.tempo;
-	playBeat(beat_index, timerValue);
+	playBeat(beat_index, count);
 			
 	beat_period_counter++;
 	if (beat_period_counter == beat_period) {
@@ -41,6 +41,8 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 		if (beat_index == song.length) beat_index = 0;
 	}
 	
+	count++;
+
 	*TIMER1_IFC = 0x1;
 }
 
