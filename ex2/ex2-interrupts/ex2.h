@@ -6,7 +6,7 @@
 
 /* The period between sound samples, in clock cycles */
 #define SAMPLE_RATE		12000
-#define	SAMPLE_PERIOD	14000000 / SAMPLE_PERIOD // 14 MHz / 292 = 48 KHz
+#define	SAMPLE_PERIOD	14000000 / SAMPLE_RATE // 14 MHz / 292 = 48 KHz
 #define VOLUME 			128
 
 typedef uint32_t uint;

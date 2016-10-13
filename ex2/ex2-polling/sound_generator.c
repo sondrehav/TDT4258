@@ -1,10 +1,8 @@
 #include "sound_generator.h"
 
-static const uint sample_rate = 14000000 / SAMPLE_PERIOD;
-
 fp sawWave(fp frequency, uint time)
 {
-	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	uint period = (SAMPLE_RATE << 16) / frequency; // Find wave period.
 	fp value = (time % period) << 16; // Value is in range 0 to period.
 	value /= period; // Value is in range 0 to 1.
 	return value;
@@ -12,15 +10,14 @@ fp sawWave(fp frequency, uint time)
 
 fp squareWave(fp frequency, uint time)
 {
-	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	uint period = (SAMPLE_RATE << 16) / frequency; // Find wave period.
 	uint time_point = (time % period); // Find time point in period.
-	if (time_point < period / 2) return 0;
-	else return 1<<16;
+	return (time_point < period / 2)<<16;
 }
 
 fp triangleWave(fp frequency, uint time)
 {
-	uint period = (sample_rate << 16) / frequency; // Find wave period.
+	uint period = (SAMPLE_RATE << 16) / frequency; // Find wave period.
 	uint time_point = (time % period); // Find time point in period.
 	if (time_point < period / 2) return time_point<<17 / period;
 	else return (period-time_point)<<17 / period;
@@ -47,5 +44,3 @@ fp getFrequency(uint note, uint octave)
 	
 	return fixed_point_mul(res, note_const[note]); // Multiply with 2^(note/12).
 }
-
-#endif
