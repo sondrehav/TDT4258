@@ -4,12 +4,11 @@
 #include "efm32gg.h"
 #include "ex2.h"
 
+#include "sound_generator.h"
+
 /* TIMER1 interrupt handler */
 
-uint32_t beat_period_counter = 0;
-uint32_t count = 0;
-uint32_t beat_index = 0;
-
+	
 void playBeat(uint beat_index, uint time);
 
 
@@ -19,6 +18,12 @@ uint songData[] = {
 	50, 50, 50, 50, 48, 48, 48, 48
 };
 Song_t song = {songData, 32, 120, 1};
+
+uint32_t beat_period_counter = 0;
+uint32_t count = 0;
+uint32_t beat_index = 0;
+uint beat_period = SAMPLE_RATE * 60 / song.tempo;
+
 
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
@@ -59,8 +64,8 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 
 void playBeat(uint beat_index, uint time)
 {
-	fp fq = getFreqNote(song.song[beat_index]);
-	fp sum = sawWave(fq, time);
+	fp frequency = getFreqNote(song.song[beat_index]);
+	fp sum = sawWave(frequency, time);
 	uint value = (sum*VOLUME) >> 16;
 	*DAC0_CH0DATA = value;
 	*DAC0_CH1DATA = value;	
