@@ -20,6 +20,25 @@ uint songData[] = {
 	50, 50, 50, 50, 48, 48, 48, 48
 };
 
+uint songData2[] = {
+	48, 52, 55, 60, 64, 55, 60, 64,
+	48, 52, 55, 60, 64, 55, 60, 64,
+	48, 50, 55, 62, 65, 55, 62, 65, 
+	48, 50, 55, 62, 65, 55, 62, 65, 
+	47, 50, 55, 61, 65, 55, 61, 65, 
+	47, 50, 55, 61, 65, 55, 61, 65, 
+	48, 52, 55, 60, 64, 55, 60, 64,
+	48, 52, 55, 60, 64, 55, 60, 64
+};
+
+uint songData3[] = {
+	0, 0, 50
+};
+
+uint songData4[] = {
+	100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0
+};
+
 int main(void)
 {
 	/* Call the peripheral setup functions */
@@ -27,11 +46,23 @@ int main(void)
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
 	
-	song_t song = {songData, 32, 120, 1};
-	soundPlayer_t player;
-	soundType_t type = Saw;
-	initSoundPlayer(&player, &song, type);
-	audio_t audio = {&player, 1, 128};
+	song_t songs[4];
+	soundPlayer_t soundPlayers[4];
+	audio_t audio = {soundPlayers, 4, 4};
+	
+	song_t song1 = {songData, 32, 120, 0};
+	song_t song2 = {songData2, 64, 240, 0};
+	song_t song3 = {songData3, 3, 60, 1};
+	song_t song4 = {songData4, 11, 120, 1};
+	songs[0] = song1;
+	songs[1] = song2;
+	songs[2] = song3;
+	songs[3] = song4;
+	
+	initSoundPlayer(soundPlayers, songs, Saw);
+	initSoundPlayer(soundPlayers+1, songs+1, Saw);
+	initSoundPlayer(soundPlayers+2, songs+2, Saw);
+	initSoundPlayer(soundPlayers+3, songs+3, Saw);
 	
 	// Polling loop
 	uint count = 0; 
