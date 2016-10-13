@@ -2,15 +2,17 @@
 # define SOUND_PLAYER_H
 
 #include "sound_generator.h"
+#include "ex2.h"
+#include "efm32gg.h"
 
-enum SoundType {
+typedef enum SoundType {
 	Saw, Triangle, Square
-};
+} soundType_t;
 
-enum PlayState 
+typedef enum PlayState 
 {
 	Running, Done, Paused
-};
+} playState_t;
 
 typedef struct Song
 {
@@ -22,23 +24,23 @@ typedef struct Song
 
 typedef struct SoundPlayer 
 {
-	Song* song;
-	PlayState state;
+	song_t* song;
+	playState_t state;
 	uint noteIndex;
 	uint noteCounter;
 	uint notePeriod;
-	SoundType soundType;
+	soundType_t soundType;
 } soundPlayer_t;
 
 typedef struct Audio
 {
-	SoundPlayer* sounds;
+	soundPlayer_t* sounds;
 	uint soundCount;
 	uint volume;
 } audio_t;
 
-void initSoundPlayer(SoundPlayer* player, Song* song, SoundType soundType);
-fp playSong(SoundPlayer* player, uint time);
-void playAudio(Audio* audio, uint time);
+void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType);
+fp playSong(soundPlayer_t* player, uint time);
+void playAudio(audio_t* audio, uint time);
 
 #endif

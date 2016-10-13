@@ -3,6 +3,8 @@
 
 #include "efm32gg.h"
 
+#include "ex2.h"
+#include "sound_generator.h"
 #include "sound_player.h"
 
 
@@ -17,10 +19,6 @@ uint songData[] = {
 	55, 55, 55, 55, 53, 53, 53, 53, 52, 52, 52, 52, 
 	50, 50, 50, 50, 48, 48, 48, 48
 };
-Song_t song = {songData, 32, 120, 1};
-SoundPlayer player;
-initSoundPlayer(player, &song, SoundType.Saw);
-Audio audio = {&player, 1, 128};
 
 int main(void)
 {
@@ -28,6 +26,12 @@ int main(void)
 	setupGPIO();
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
+	
+	song_t song = {songData, 32, 120, 1};
+	soundPlayer_t player;
+	soundType_t type = Saw;
+	initSoundPlayer(&player, &song, type);
+	audio_t audio = {&player, 1, 128};
 	
 	// Polling loop
 	uint count = 0; 
@@ -38,7 +42,6 @@ int main(void)
 		
 		// Check if new data should be pushed to the DAC.
 		if (timerValue <= 150 && lastTimerValue > 150) {
-			playBeat(beat_index, count);
 			
 			playAudio(&audio, count);
 			
