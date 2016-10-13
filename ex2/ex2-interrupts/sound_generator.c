@@ -12,7 +12,6 @@ fp squareWave(fp frequency, uint time)
 {
 	uint period = (SAMPLE_RATE << 16) / frequency; // Find wave period.
 	uint time_point = (time % period); // Find time point in period.
-
 	return (time_point < period / 2)<<16;
 }
 
