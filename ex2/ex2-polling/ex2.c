@@ -37,7 +37,7 @@ uint songData2[] = {
 };
 
 uint song1up[] = {
-   52, 55, 64, 60, 62, 67
+   64, 67, 76, 72, 74, 79
 };
 
 uint songData4[] = {
@@ -72,7 +72,7 @@ int main(void)
 	
 	initSoundPlayer(soundPlayers, songs, Saw, 4);
 	initSoundPlayer(soundPlayers+1, songs+1, Saw, 4);
-	initSoundPlayer(soundPlayers+2, songs+2, Saw, 4);
+	initSoundPlayer(soundPlayers+2, songs+2, Square, 4);
 	initSoundPlayer(soundPlayers+3, songs+3, Saw, 4);
 	
 	soundPlayers[0].state = Paused;
