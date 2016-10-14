@@ -14,6 +14,11 @@ void setupGPIO();
 void setupTimer(uint32_t period);
 void setupDAC();
 
+
+
+void selectSong();
+
+/* Sound data and variables. */
 uint songData[] = {
 	48, 50, 52, 53, 55, 55, 55, 55, 57, 57, 57, 57, 
 	55, 55, 55, 55, 53, 53, 53, 53, 52, 52, 52, 52, 
@@ -39,6 +44,17 @@ uint songData4[] = {
 	100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0
 };
 
+song_t songs[4];
+soundPlayer_t soundPlayers[4];
+audio_t audio = {soundPlayers, 4};
+
+song_t song1 = {songData, 32, 240, 0};
+song_t song2 = {songData2, 64, 480, 0};
+song_t song3 = {songData3, 3, 60, 0};
+song_t song4 = {songData4, 11, 120, 0};
+
+uint time;
+
 int main(void)
 {
 	/* Call the peripheral setup functions */
@@ -46,27 +62,27 @@ int main(void)
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
 	
-	song_t songs[4];
-	soundPlayer_t soundPlayers[4];
-	audio_t audio = {soundPlayers, 4};
-	
-	song_t song1 = {songData, 32, 240, 0};
-	song_t song2 = {songData2, 64, 480, 0};
-	song_t song3 = {songData3, 3, 60, 1};
-	song_t song4 = {songData4, 11, 120, 1};
+	/* Audio setup. */
 	songs[0] = song1;
 	songs[1] = song2;
 	songs[2] = song3;
 	songs[3] = song4;
 	
 	initSoundPlayer(soundPlayers, songs, Saw, 4);
-	initSoundPlayer(soundPlayers+1, songs+1, Saw, 1);
-	initSoundPlayer(soundPlayers+2, songs+2, Saw, 1);
+	initSoundPlayer(soundPlayers+1, songs+1, Saw, 4);
+	initSoundPlayer(soundPlayers+2, songs+2, Saw, 4);
 	initSoundPlayer(soundPlayers+3, songs+3, Saw, 4);
 	
+	soundPlayers[0].state = Paused;
+	soundPlayers[1].state = Paused;
+	soundPlayers[2].state = Paused;
+	soundPlayers[3].state = Paused;
+	
+	time = 0;
+	
 	// Polling loop
-	uint count = 0; 
 	uint lastTimerValue = 0;
+	uint gpioOld = 0;
 	
 	while (1) {
 		uint timerValue = *TIMER1_CNT;
@@ -74,15 +90,34 @@ int main(void)
 		// Check if new data should be pushed to the DAC.
 		if (timerValue <= 150 && lastTimerValue > 150) {
 			
-			playAudio(&audio, count);
-			
-			if (count == 120000) restart(soundPlayers);
-			
-			if (count == 0xffffffff) count = 0;
-			else count++;
+			if (*GPIO_PC_DIN != gpioOld) {
+				gpioOld = *GPIO_PC_DIN;
+				selectSong();
+			}
+			playAudio(&audio, time);
+			time++;
 		}
 		lastTimerValue = timerValue;
 	}
 
 	return 0;
+}
+
+void selectSong(){
+	if (((~*GPIO_PC_DIN) & 0x1) == 0x1)
+	{
+		audio.sounds[0].state = Running;
+	}
+	else if (((~*GPIO_PC_DIN) & 0x2) == 0x2)
+	{
+		audio.sounds[1].state = Running;
+	}
+	else if (((~*GPIO_PC_DIN) & 0x4) == 0x4)
+	{
+		audio.sounds[2].state = Running;
+	}
+	else if (((~*GPIO_PC_DIN) & 0x8) == 0x8)
+	{
+		audio.sounds[3].state = Running;
+	}
 }

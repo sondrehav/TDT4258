@@ -46,21 +46,17 @@ void selectSong(){
 	if (((~*GPIO_PC_DIN) & 0x1) == 0x1)
 	{
 		audio.sounds[0].state = Running;
-		*GPIO_PA_DOUT = 0x0fff ^ *GPIO_PA_DOUT;
 	}
 	else if (((~*GPIO_PC_DIN) & 0x2) == 0x2)
 	{
 		audio.sounds[1].state = Running;
-		*GPIO_PA_DOUT = 0xf0ff ^ *GPIO_PA_DOUT;
 	}
 	else if (((~*GPIO_PC_DIN) & 0x4) == 0x4)
 	{
 		audio.sounds[2].state = Running;
-		*GPIO_PA_DOUT = 0x5fff ^ *GPIO_PA_DOUT;
 	}
 	else if (((~*GPIO_PC_DIN) & 0x8) == 0x8)
 	{
 		audio.sounds[3].state = Running;
-		*GPIO_PA_DOUT = 0xf5ff ^ *GPIO_PA_DOUT;
 	}
 }
