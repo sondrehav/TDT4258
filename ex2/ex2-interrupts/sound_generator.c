@@ -19,8 +19,9 @@ fp triangleWave(fp frequency, uint time)
 {
 	uint period = (SAMPLE_RATE << 16) / frequency; // Find wave period.
 	uint time_point = (time % period); // Find time point in period.
-	if (time_point < period / 2) return time_point<<17 / period;
-	else return (period-time_point)<<17 / period;
+	uint time_point_2 = period - time_point;
+	uint k = (time_point < period / 2);
+	return (((time_point*k)+(time_point_2*k^1))<<17) / period;
 }
 
 
