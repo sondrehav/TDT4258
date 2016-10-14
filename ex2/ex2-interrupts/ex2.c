@@ -88,7 +88,6 @@ int main(void)
 	soundPlayers[1].state = Paused;
 	soundPlayers[2].state = Paused;
    soundPlayers[3].state = Paused;
-   soundPlayers[4].state = Paused;
 	
 	time = 0;
 	
