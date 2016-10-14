@@ -25,12 +25,12 @@ uint songData[] = {
 	48, 52, 55, 60, 64, 55, 60, 64,
 	48, 52, 55, 60, 64, 55, 60, 64
 };
-Song_t song = {songData, 64, 120, 1};
+song_t song = {songData, 64, 120, 1};
 
 uint songData2[] = {
 	48 +5, 52 +5, 55+5, 60+5, 64+5, 60+5, 55+5, 52+5
 };
-Song_t song2 = {songData2, 8, 1920, 1};
+song_t song2 = {songData2, 8, 1920, 1};
 
 
 
@@ -45,7 +45,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	   TODO feed new samples to the DAC
 	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC
 	 */
-	Song_t s = currentSong == 0 ? song : song2;
+	song_t s = currentSong == 0 ? song : song2;
 	uint beat_period = SAMPLE_RATE * 60 / s.tempo;
 	playBeat(beat_index, count);
 			
@@ -99,7 +99,7 @@ void selectSong(){
 
 void playBeat(uint beat_index, uint time)
 {
-	Song_t s = currentSong == 0 ? song : song2;
+	song_t s = currentSong == 0 ? song : song2;
 	fp frequency = getFreqNote(s.song[beat_index]);
 	fp sum = sawWave(frequency, time);
 	uint value = (sum*VOLUME) >> 16;
