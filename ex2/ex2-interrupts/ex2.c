@@ -57,7 +57,7 @@ audio_t audio = {soundPlayers, 4};
 
 song_t song1 = {songData, 32, 240, 0};
 song_t song2 = {songData2, 64, 480, 0};
-song_t song3 = {song1up, 6, 240, 0};
+song_t song3 = {song1up, 6, 360, 0};
 song_t song4 = {songData4, 11, 120, 0};
 
 uint time;
