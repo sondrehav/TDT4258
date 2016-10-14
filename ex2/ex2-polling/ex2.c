@@ -36,13 +36,15 @@ uint songData2[] = {
 	48, 52, 55, 60, 64, 55, 60, 64
 };
 
-uint songData3[] = {
-	0, 0, 50
+uint song1up[] = {
+   52, 55, 64, 60, 62, 67
 };
 
 uint songData4[] = {
 	100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0
 };
+
+
 
 song_t songs[4];
 soundPlayer_t soundPlayers[4];
@@ -50,7 +52,7 @@ audio_t audio = {soundPlayers, 4};
 
 song_t song1 = {songData, 32, 240, 0};
 song_t song2 = {songData2, 64, 480, 0};
-song_t song3 = {songData3, 3, 60, 0};
+song_t song3 = {song1up, 6, 240, 0};
 song_t song4 = {songData4, 11, 120, 0};
 
 uint time;
