@@ -49,18 +49,23 @@ uint songData4[] = {
 	100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0
 };
 
-song_t songs[4];
-soundPlayer_t soundPlayers[4];
-audio_t audio = {soundPlayers, 4};
+uint song1up[] = {
+   52, 55, 64, 60, 62, 67
+};
+
+
+
+song_t songs[5];
+soundPlayer_t soundPlayers[5];
+audio_t audio = {soundPlayers, 5};
 
 song_t song1 = {songData, 32, 240, 0};
 song_t song2 = {songData2, 64, 480, 0};
 song_t song3 = {songData3, 3, 60, 0};
 song_t song4 = {songData4, 11, 120, 0};
+song_t song4 = {song1up, 6, 240, 0};
 
 uint time;
-
-
 
 /* Your code will start executing here */
 int main(void)
@@ -77,17 +82,20 @@ int main(void)
 	songs[0] = song1;
 	songs[1] = song2;
 	songs[2] = song3;
-	songs[3] = song4;
+   songs[3] = song4;
+   songs[4] = song1up;
 	
 	initSoundPlayer(soundPlayers, songs, Saw, 4);
 	initSoundPlayer(soundPlayers+1, songs+1, Saw, 4);
 	initSoundPlayer(soundPlayers+2, songs+2, Saw, 4);
-	initSoundPlayer(soundPlayers+3, songs+3, Saw, 4);
+   initSoundPlayer(soundPlayers+3, songs+3, Saw, 4);
+   initSoundPlayer(soundPlayers+4, songs+4, Square, 4);
 	
 	soundPlayers[0].state = Paused;
 	soundPlayers[1].state = Paused;
 	soundPlayers[2].state = Paused;
-	soundPlayers[3].state = Paused;
+   soundPlayers[3].state = Paused;
+   soundPlayers[4].state = Paused;
 	
 	time = 0;
 	
