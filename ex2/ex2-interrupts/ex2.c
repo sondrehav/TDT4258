@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "sound_generator.h"
-
 #include "efm32gg.h"
 
 #include "ex2.h"
+#include "sound_generator.h"
+#include "sound_player.h"
 
 /* 
   TODO calculate the appropriate sample period for the sound wave(s) 

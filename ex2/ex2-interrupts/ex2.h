@@ -12,12 +12,4 @@
 typedef uint32_t uint;
 typedef uint32_t fp;
 
-typedef struct Song
-{
-	uint* song;
-	uint length;
-	uint tempo;
-	bool looping;
-} Song_t;
-
 #endif

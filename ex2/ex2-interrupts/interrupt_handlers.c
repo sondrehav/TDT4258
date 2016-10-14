@@ -2,9 +2,10 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
-#include "ex2.h"
 
+#include "ex2.h"
 #include "sound_generator.h"
+#include "sound_player.h"
 
 /* TIMER1 interrupt handler */
 
@@ -70,4 +71,3 @@ void playBeat(uint beat_index, uint time)
 	*DAC0_CH0DATA = value;
 	*DAC0_CH1DATA = value;	
 }
-
