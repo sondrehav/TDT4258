@@ -1,25 +1,28 @@
 #include "sound_player.h"
+#include "sound_generator.h"
+#include "ex2.h"
 
-void initSoundPlayer(SoundPlayer* player, Song* song, SoundType soundType) {
+void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType, uint volume) {
 	player->song = song;
-	player->state = running;
+	player->state = Running;
 	player->noteIndex = 0;
 	player->noteCounter = 0;
-	player->notePeriod = sampleRate * 60 / song->tempo;
+	player->notePeriod = SAMPLE_RATE * 60 / song->tempo;
 	player->soundType = soundType;
+	player->volume = volume;
 }
 
-fp playSong(SoundPlayer* player, uint time) {
+fp playSong(soundPlayer_t* player, uint time) {
 	fp freq = getFreqNote(player->song->song[player->noteIndex]);
 	fp sample;
 	switch(player->soundType) {
-		case SoundType.Saw:
+		case Saw:
 			sample = sawWave(freq, time);
 			break;
-		case SoundType.Triangle:
+		case Triangle:
 			sample = triangleWave(freq, time);
 			break;
-		case SoundType.Square:
+		case Square:
 			sample = squareWave(freq, time);
 			break;
 	}
@@ -31,23 +34,28 @@ fp playSong(SoundPlayer* player, uint time) {
 		if (player->noteIndex == player->song->length) {
 			player->noteIndex = 0;
 			if (!player->song->looping) {
-				player->state = PlayState.Done;
+				player->state = Done;
 			}
 		}
 	}
-	
+	sample *= player->volume;
 	return sample;
 }
 
-void playAudio(Audio* audio, uint time) {
-	uint sum = 0;
+void playAudio(audio_t* audio, uint time) {
+	fp sum = 0;
 	for (uint i = 0; i<audio->soundCount; i++) {
-		if (audio->sounds[i]->state == PlayState.running) {
-			sum += playSong(audio->sounds[i], time);
+		if (audio->sounds[i].state == Running) {
+			sum += playSong(&audio->sounds[i], time);
 		}
 	}
-	sum *= audio->volume;
 	sum >>= 16;
 	*DAC0_CH0DATA = sum;
 	*DAC0_CH1DATA = sum;
+}
+
+void restart(soundPlayer_t* player) {
+	player->state = Running;
+	player->noteIndex = 0;
+	player->noteCounter = 0;
 }

@@ -2,13 +2,14 @@
 #include "sound_generator.h"
 #include "ex2.h"
 
-void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType) {
+void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType, uint volume) {
 	player->song = song;
 	player->state = Running;
 	player->noteIndex = 0;
 	player->noteCounter = 0;
 	player->notePeriod = SAMPLE_RATE * 60 / song->tempo;
 	player->soundType = soundType;
+	player->volume = volume;
 }
 
 fp playSong(soundPlayer_t* player, uint time) {
@@ -37,7 +38,7 @@ fp playSong(soundPlayer_t* player, uint time) {
 			}
 		}
 	}
-	
+	sample *= player->volume;
 	return sample;
 }
 
@@ -48,8 +49,13 @@ void playAudio(audio_t* audio, uint time) {
 			sum += playSong(&audio->sounds[i], time);
 		}
 	}
-	sum *= audio->volume;
 	sum >>= 16;
 	*DAC0_CH0DATA = sum;
 	*DAC0_CH1DATA = sum;
+}
+
+void restart(soundPlayer_t* player) {
+	player->state = Running;
+	player->noteIndex = 0;
+	player->noteCounter = 0;
 }

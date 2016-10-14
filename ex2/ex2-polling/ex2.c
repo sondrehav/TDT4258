@@ -48,10 +48,10 @@ int main(void)
 	
 	song_t songs[4];
 	soundPlayer_t soundPlayers[4];
-	audio_t audio = {soundPlayers, 4, 4};
+	audio_t audio = {soundPlayers, 4};
 	
-	song_t song1 = {songData, 32, 120, 0};
-	song_t song2 = {songData2, 64, 240, 0};
+	song_t song1 = {songData, 32, 240, 0};
+	song_t song2 = {songData2, 64, 480, 0};
 	song_t song3 = {songData3, 3, 60, 1};
 	song_t song4 = {songData4, 11, 120, 1};
 	songs[0] = song1;
@@ -59,10 +59,10 @@ int main(void)
 	songs[2] = song3;
 	songs[3] = song4;
 	
-	initSoundPlayer(soundPlayers, songs, Saw);
-	initSoundPlayer(soundPlayers+1, songs+1, Saw);
-	initSoundPlayer(soundPlayers+2, songs+2, Saw);
-	initSoundPlayer(soundPlayers+3, songs+3, Saw);
+	initSoundPlayer(soundPlayers, songs, Saw, 4);
+	initSoundPlayer(soundPlayers+1, songs+1, Saw, 1);
+	initSoundPlayer(soundPlayers+2, songs+2, Saw, 1);
+	initSoundPlayer(soundPlayers+3, songs+3, Saw, 4);
 	
 	// Polling loop
 	uint count = 0; 
@@ -75,6 +75,8 @@ int main(void)
 		if (timerValue <= 150 && lastTimerValue > 150) {
 			
 			playAudio(&audio, count);
+			
+			if (count == 120000) restart(soundPlayers);
 			
 			if (count == 0xffffffff) count = 0;
 			else count++;

@@ -30,17 +30,18 @@ typedef struct SoundPlayer
 	uint noteCounter;
 	uint notePeriod;
 	soundType_t soundType;
+	uint volume;
 } soundPlayer_t;
 
 typedef struct Audio
 {
 	soundPlayer_t* sounds;
 	uint soundCount;
-	uint volume;
 } audio_t;
 
-void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType);
+void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType, uint volume);
 fp playSong(soundPlayer_t* player, uint time);
 void playAudio(audio_t* audio, uint time);
+void restart(soundPlayer_t* player);
 
 #endif
