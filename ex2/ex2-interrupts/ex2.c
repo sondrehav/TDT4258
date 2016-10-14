@@ -77,8 +77,7 @@ int main(void)
 	songs[0] = song1;
 	songs[1] = song2;
 	songs[2] = song3;
-   songs[3] = song4;
-   songs[4] = song1up;
+	songs[3] = song4;
 	
 	initSoundPlayer(soundPlayers, songs, Saw, 4);
 	initSoundPlayer(soundPlayers+1, songs+1, Saw, 4);
