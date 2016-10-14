@@ -7,13 +7,7 @@
 #include "sound_generator.h"
 #include "sound_player.h"
 
-/* 
-  TODO calculate the appropriate sample period for the sound wave(s) 
-  you want to generate. The core clock (which the timer clock is derived
-  from) runs at 14 MHz by default. Also remember that the timer counter
-  registers are 16 bits.
-*/
-/* The period between sound samples, in clock cycles */
+
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -23,6 +17,7 @@ void setupNVIC();
 
 
 
+/* Extern function found in songs.c */
 extern void audioSetup();
 
 /* Your code will start executing here */

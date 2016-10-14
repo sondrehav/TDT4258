@@ -16,10 +16,12 @@ void setupDAC();
 
 
 
+/* Extern variables and function found in songs.c */
 extern void audioSetup();
 extern audio_t audio;
 extern uint time;
 
+/* Select what song to play based on what button is pressed. */
 void selectSong();
 
 int main(void)
@@ -41,6 +43,7 @@ int main(void)
 		// Check if new data should be pushed to the DAC.
 		if (timerValue <= 150 && lastTimerValue > 150) {
 			
+			/* Check for change in button state. */
 			if (*GPIO_PC_DIN != gpioOld) {
 				gpioOld = *GPIO_PC_DIN;
 				selectSong();

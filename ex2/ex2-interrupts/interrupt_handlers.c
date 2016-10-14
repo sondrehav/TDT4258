@@ -7,19 +7,16 @@
 #include "sound_generator.h"
 #include "sound_player.h"
 
+/* Select what song to play based on what button is pressed. */
 void selectSong();
 
+/* Extern variables found in songs.c */
 extern audio_t audio;
 extern uint time;
 
 /* TIMER1 interrupt handler */
-
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
-	/*
-	   TODO feed new samples to the DAC
-	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC
-	 */
 	playAudio(&audio, time);
 	time++;
 
@@ -29,7 +26,6 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 /* GPIO even pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 {
-	/* TODO handle button pressed event, remember to clear pending interrupt */
 	*GPIO_IFC = *GPIO_IF;
 	selectSong();
 }
@@ -37,7 +33,6 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 /* GPIO odd pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
-	/* TODO handle button pressed event, remember to clear pending interrupt */
 	*GPIO_IFC = *GPIO_IF;
 	selectSong();
 }
