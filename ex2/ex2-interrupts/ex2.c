@@ -7,15 +7,11 @@
 #include "sound_generator.h"
 #include "sound_player.h"
 
-
-
 /* Declaration of peripheral setup functions */
 void setupGPIO();
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
-
-
 
 /* Extern function found in songs.c */
 extern void audioSetup();
@@ -34,7 +30,7 @@ int main(void)
 	audioSetup();
 
 	*SCR = 6;
-	
+
 	__asm("wfi");
 	while (1) ;
 
