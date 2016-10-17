@@ -6,7 +6,7 @@
 /* function to setup the timer */
 void setupTimer(uint16_t period)
 {
-	*CMU_HFPERCLKEN0 |= (1<<6);
+	*CMU_HFPERCLKEN0 |= (1 << 6);
 	*TIMER1_TOP = period;
-	*TIMER1_CMD= 0x1;
+	*TIMER1_CMD = 0x1;
 }
