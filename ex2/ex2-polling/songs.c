@@ -24,18 +24,21 @@ uint song1up[] = {
    64, 67, 76, 72, 74, 79
 };
 
-uint shot1[] = {
+uint bumb[] = {
 	30
 };
 
-uint shot2[] = {
-	42
+uint shot[] = {
+	60, 64, 67, 72, 76, 67, 72, 76,
+	60, 52, 55, 60, 64, 55, 60, 64,
+	48, 38, 43, 50, 53, 43, 50, 53, 
+	24, 26, 31, 38, 41, 31, 38, 41 
 };
 
 song_t song1 = {songStartup, 64, 480, 0};
 song_t song2 = {song1up, 6, 360, 0};
-song_t song3 = {shot1, 1, 240, 0};
-song_t song4 = {shot2, 1, 120, 0};
+song_t song3 = {bumb, 1, 240, 0};
+song_t song4 = {shot, 32, 6000, 0};
 
 song_t songs[4];
 soundPlayer_t soundPlayers[4];
@@ -50,7 +53,7 @@ void audioSetup() {
 	songs[2] = song3;
 	songs[3] = song4;
 	
-	initSoundPlayer(soundPlayers, songs, Saw, 2);
+	initSoundPlayer(soundPlayers, songs, Square, 4);
 	initSoundPlayer(soundPlayers+1, songs+1, Square, 4);
 	initSoundPlayer(soundPlayers+2, songs+2, Square, 4);
 	initSoundPlayer(soundPlayers+3, songs+3, Square, 4);
