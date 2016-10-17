@@ -2,6 +2,10 @@
 #include "sound_generator.h"
 #include "ex2.h"
 
+// Variables found in songs.c
+extern uint runningCount;
+extern bool noAudio;
+
 void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType, uint volume) {
 	player->song = song;
 	player->state = Running;
@@ -37,6 +41,8 @@ fp playSong(soundPlayer_t* player, uint time) {
 			player->noteIndex = 0;
 			if (!player->song->looping) {
 				player->state = Done;
+				runningCount--;
+				if (runningCount == 0) noAudio = 1;
 			}
 		}
 	}

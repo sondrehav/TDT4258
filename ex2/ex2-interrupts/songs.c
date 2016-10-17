@@ -44,7 +44,8 @@ song_t songs[4];
 soundPlayer_t soundPlayers[4];
 audio_t audio = {soundPlayers, 4};
 uint time;
-
+uint runningCount;
+bool noAudio;
 
 
 void audioSetup() {
@@ -64,4 +65,6 @@ void audioSetup() {
 	soundPlayers[3].state = Paused;
 	
 	time = 0;
+	runningCount = 0;
+	noAudio = 1;
 }

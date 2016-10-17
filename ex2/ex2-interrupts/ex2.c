@@ -32,7 +32,10 @@ int main(void)
 	setupNVIC();
 
 	audioSetup();
+
+	*SCR = 6;
 	
+	__asm("wfi");
 	while (1) ;
 
 	return 0;
