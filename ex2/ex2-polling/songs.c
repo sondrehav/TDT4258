@@ -24,22 +24,18 @@ uint song1up[] = {
    64, 67, 76, 72, 74, 79
 };
 
-uint songData1[] = {
-	48, 50, 52, 53, 55, 55, 55, 55, 57, 57, 57, 57, 
-	55, 55, 55, 55, 53, 53, 53, 53, 52, 52, 52, 52, 
-	50, 50, 50, 50, 48, 48, 48, 48
+uint shot1[] = {
+	30
 };
 
-uint songData2[] = {
-	100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0
+uint shot2[] = {
+	42
 };
 
 song_t song1 = {songStartup, 64, 480, 0};
 song_t song2 = {song1up, 6, 360, 0};
-song_t song3 = {songData1, 32, 240, 0};
-song_t song4 = {songData2, 11, 120, 0};
-
-
+song_t song3 = {shot1, 1, 240, 0};
+song_t song4 = {shot2, 1, 120, 0};
 
 song_t songs[4];
 soundPlayer_t soundPlayers[4];
@@ -54,10 +50,10 @@ void audioSetup() {
 	songs[2] = song3;
 	songs[3] = song4;
 	
-	initSoundPlayer(soundPlayers, songs, Saw, 4);
+	initSoundPlayer(soundPlayers, songs, Saw, 2);
 	initSoundPlayer(soundPlayers+1, songs+1, Square, 4);
-	initSoundPlayer(soundPlayers+2, songs+2, Saw, 4);
-	initSoundPlayer(soundPlayers+3, songs+3, Triangle, 4);
+	initSoundPlayer(soundPlayers+2, songs+2, Square, 4);
+	initSoundPlayer(soundPlayers+3, songs+3, Square, 4);
 	
 	soundPlayers[0].state = Paused;
 	soundPlayers[1].state = Paused;
