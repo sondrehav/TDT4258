@@ -35,6 +35,7 @@ typedef struct SoundPlayer
 	uint notePeriod;
 	soundType_t soundType;
 	uint volume;
+	fp (*soundGen)(fp, uint); // Store sound generation function, so we won't have to look it up during sampling.
 } soundPlayer_t;
 
 /* Used to play mulitple sounds. Should only be one of these in the program. */

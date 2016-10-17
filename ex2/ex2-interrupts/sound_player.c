@@ -10,24 +10,24 @@ void initSoundPlayer(soundPlayer_t* player, song_t* song, soundType_t soundType,
 	player->notePeriod = SAMPLE_RATE * 60 / song->tempo; // Calculate note period in sample rate ticks.
 	player->soundType = soundType;
 	player->volume = volume;
+	switch(soundType) {
+		case Saw:
+			player->soundGen = sawWave;
+			break;
+		case Triangle:
+			player->soundGen = triangleWave;
+			break;
+		case Square:
+			player->soundGen = squareWave;
+			break;
+	}
 }
 
 fp playSong(soundPlayer_t* player, uint time) {
 	fp freq = getFreqNote(player->song->song[player->noteIndex]); // Get frequency of current note.
-	fp sample;
 	
 	// Sample using specified waveform.
-	switch(player->soundType) {
-		case Saw:
-			sample = sawWave(freq, time);
-			break;
-		case Triangle:
-			sample = triangleWave(freq, time);
-			break;
-		case Square:
-			sample = squareWave(freq, time);
-			break;
-	}
+	fp sample = player->soundGen(freq, time);
 	
 	player->noteCounter++;
 	if (player->noteCounter == player->notePeriod) { // End of note.
