@@ -21,14 +21,14 @@
 *.dSYM/
 *.su
 
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/configs/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/platform-energymicro-efm32gg-dk3750/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/platforms/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/projectroot/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/rules/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/src/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_toolchain
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/tests/
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_platformconfig
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_ptxconfig
-/EX3/TDT4258/ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/README
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/configs/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/platform-energymicro-efm32gg-dk3750/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/platforms/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/projectroot/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/rules/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/src/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_toolchain
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/tests/
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_platformconfig
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/selected_ptxconfig
+ex3/ex3-support/OSELAS.BSP-EnergyMicro-Gecko/README
