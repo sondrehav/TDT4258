@@ -56,12 +56,12 @@ static int __init template_init(void)
 }
 
 static int gpad_open(struct inode *inode, struct file *filep){
-	printk(KERN_NOTICE "Open driver!");
+	printk(KERN_NOTICE "Open driver!\n");
 	return 0;
 }
 
 static int gpad_release(struct inode *inode, struct file *filep){
-	printk(KERN_NOTICE "Release driver!");
+	printk(KERN_NOTICE "Release driver!\n");
 	return 0;
 }
 
@@ -69,7 +69,7 @@ static char message[256] = {0};
 static short size_of_message;
 
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	printk(KERN_NOTICE "Read driver!");
+	printk(KERN_NOTICE "Read driver!\n");
 	int error_count = copy_to_user(buf, message, size_of_message);
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
@@ -81,12 +81,13 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 }
 
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
+	printk(KERN_NOTICE "Write driver!\n");
 	printk(KERN_NOTICE "Driver: %s\n", buf);
 	int i = 0;
 	while(i<256) {
 		message[i] = buf[i];
 		if(buf[i] == '\0') {
-			size_of_message = i;
+			size_of_message = i+1;
 			return size_of_message;
 		}
 		i++;
