@@ -8,6 +8,8 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
+#include <asm/uaccess.h>          // Required for the copy to user function
+
 
 dev_t dev;
 
@@ -63,18 +65,32 @@ static int gpad_release(struct inode *inode, struct file *filep){
 	return 0;
 }
 
+static char message[256] = {0};
+static short size_of_message;
+
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Read driver!");
-	uint32_t data = 0 ^ 0x0000;
-	bool t = ((data ^ 0) & 0x0080) == 0x0080
-	char c = t ? 'a' : 'b';
-	*(buf) = c;
-	return 1;
+	int error_count = copy_to_user(buf, message, size_of_message);
+	if(error_count == 0){
+		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
+		return (size_of_message=0);
+	} else {
+		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
+		return -14; 
+	}
 }
 
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Driver: %s\n", buf);
-	return (ssize_t) count;
+	sprintf(message, "%s(%d letters)", buf, count);
+	for(int i = 0; i < 256; i++) {
+		if(buf[i] == '\0') {
+			size_of_message = i;
+			return count;
+		}
+	}
+	printk(KERN_INFO "Error: Could not find null-terminator.");
+	return 0;
 }
 
 

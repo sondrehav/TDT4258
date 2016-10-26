@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 	char buf[255];
 
 	fprintf(file, "Test for driver!");
+	
 	int t = (int) fscanf(file, "%s", buf);
 	printf("Program: %s\n", buf);
 	printf("1?: %d\n", t);
