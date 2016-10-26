@@ -55,9 +55,6 @@ static int __init template_init(void)
 
 static int gpad_open(struct inode *inode, struct file *filep){
 	printk(KERN_NOTICE "Open driver!");
-	/*struct gpad_dev *dev_;
-	dev_ = container_of(inode->i_cdev, struct gpad_dev, cdev);
-	filep->private_data = dev_;*/
 	return 0;
 }
 
@@ -67,13 +64,17 @@ static int gpad_release(struct inode *inode, struct file *filep){
 }
 
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	printk(KERN_NOTICE "Read driver!");	
-	return NULL;
+	printk(KERN_NOTICE "Read driver!");
+	uint32_t data = 0 ^ 0x0000;
+	bool t = ((data ^ 0) & 0x0080) == 0x0080
+	char c = t ? 'a' : 'b';
+	*(buf) = c;
+	return 1;
 }
 
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	printk(KERN_NOTICE "Write driver!");	
-	return NULL;
+	printk(KERN_NOTICE "Driver: %s\n", buf);
+	return (ssize_t) count;
 }
 
 
