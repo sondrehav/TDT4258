@@ -83,12 +83,15 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Driver: %s\n", buf);
 	sprintf(message, "%s(%d letters)", buf, count);
-	for(int i = 0; i < 256; i++) {
+
+	int i = 0;
+	while((i++)<256) {
 		if(buf[i] == '\0') {
-			size_of_message = i;
+			size_of_message = i + 1;
 			return count;
 		}
 	}
+
 	printk(KERN_INFO "Error: Could not find null-terminator.");
 	return 0;
 }
