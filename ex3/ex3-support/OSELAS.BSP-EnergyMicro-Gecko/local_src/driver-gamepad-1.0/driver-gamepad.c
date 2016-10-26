@@ -73,7 +73,7 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	int error_count = copy_to_user(buf, message, size_of_message);
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return (size_of_message=0);
+		return size_of_message;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 
@@ -82,16 +82,15 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Driver: %s\n", buf);
-	sprintf(message, "%s(%d letters)", buf, count);
-
 	int i = 0;
-	while((i++)<256) {
+	while(i<256) {
+		message[i] = buf[i];
 		if(buf[i] == '\0') {
-			size_of_message = i + 1;
-			return count;
+			size_of_message = i;
+			return size_of_message;
 		}
+		i++;
 	}
-
 	printk(KERN_INFO "Error: Could not find null-terminator.");
 	return 0;
 }
