@@ -6,17 +6,14 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/fs.h>
-
-/*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
- */
+#include <linux/cdev.h>
 
 dev_t dev;
+
+static int gpad_open(struct inode *inode, struct file *filep);
+static int gpad_release(struct inode *inode, struct file *filep);
+static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
+static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 
 static struct file_operations gpad_fops = {
 	.owner = 	THIS_MODULE;
@@ -29,6 +26,16 @@ static struct file_operations gpad_fops = {
 struct cdev gpad_cdev;
 struct class *cl;
 
+
+/*
+ * template_init - function to insert this module into kernel space
+ *
+ * This is the first of two exported functions to handle inserting this
+ * code into a running kernel
+ *
+ * Returns 0 if successfull, otherwise -1
+ */
+
 static int __init template_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
@@ -37,10 +44,11 @@ static int __init template_init(void)
 	int err = cdev_add(&gpad_cdev, dev, 1);
 	if(err){
 		printk(KERN_NOTICE "Error %d adding driver.", err);
-		return = 1;
+		return = -1;
 	}
 	cl = class_create(THIS_MODULE, "GamepadDriver");
 	device_create(cl, NULL, dev, NULL, "GamepadDriver");
+	printk("Initialization done.");
 	return 0;
 }
 
