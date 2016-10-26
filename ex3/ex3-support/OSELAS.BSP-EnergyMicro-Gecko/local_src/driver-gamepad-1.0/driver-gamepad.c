@@ -15,9 +15,12 @@
  * Returns 0 if successfull, otherwise -1
  */
 
+dev_t dev;
+
 static int __init template_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
+	alloc_chrdev_region(&dev, 0, 1, "GamepadDriver");
 	return 0;
 }
 
@@ -30,7 +33,8 @@ static int __init template_init(void)
 
 static void __exit template_cleanup(void)
 {
-	 printk("Short life for a small module...\n");
+	unregister_chrdev_region(dev, 1);
+	printk("Short life for a small module...\n");
 }
 
 module_init(template_init);
