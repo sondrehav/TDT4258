@@ -7,6 +7,7 @@
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
+#include <linux/device.h>
 
 dev_t dev;
 
@@ -16,11 +17,11 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 
 static struct file_operations gpad_fops = {
-	.owner = 	THIS_MODULE;
-	.read = 	gpad_read;
-	.write = 	gpad_write;
-	.open = 	gpad_open;
-	.release = 	gpad_release;
+	.owner = 	THIS_MODULE,
+	.read = 	gpad_read,
+	.write = 	gpad_write,
+	.open = 	gpad_open,
+	.release = 	gpad_release
 };
 
 struct cdev gpad_cdev;
@@ -40,11 +41,11 @@ static int __init template_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
 	alloc_chrdev_region(&dev, 0, 1, "GamepadDriver");
-	cdev_init($gpad_cdev, &gpad_fops);
+	cdev_init(&gpad_cdev, &gpad_fops);
 	int err = cdev_add(&gpad_cdev, dev, 1);
 	if(err){
 		printk(KERN_NOTICE "Error %d adding driver.", err);
-		return = -1;
+		return -1;
 	}
 	cl = class_create(THIS_MODULE, "GamepadDriver");
 	device_create(cl, NULL, dev, NULL, "GamepadDriver");
@@ -57,18 +58,22 @@ static int gpad_open(struct inode *inode, struct file *filep){
 	/*struct gpad_dev *dev_;
 	dev_ = container_of(inode->i_cdev, struct gpad_dev, cdev);
 	filep->private_data = dev_;*/
+	return 0;
 }
 
 static int gpad_release(struct inode *inode, struct file *filep){
 	printk(KERN_NOTICE "Release driver!");
+	return 0;
 }
 
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Read driver!");	
+	return NULL;
 }
 
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Write driver!");	
+	return NULL;
 }
 
 
