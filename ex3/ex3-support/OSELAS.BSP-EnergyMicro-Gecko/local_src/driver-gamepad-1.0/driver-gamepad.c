@@ -11,6 +11,7 @@
 #include <asm/uaccess.h>          // Required for the copy to user function
 #include <linux/ioport.h>
 #include <asm/io.h>
+#include "efm32gg.h"
 
 dev_t dev;
 
@@ -42,6 +43,7 @@ struct class *cl;
 
 
 struct resource* res;
+uint32_t* gpio_pc_base_address;
 
 static int __init template_init(void)
 {
@@ -57,15 +59,18 @@ static int __init template_init(void)
 	device_create(cl, NULL, dev, NULL, "GamepadDriver");
 	printk("Initialization done.");
 
-	res = request_mem_region(GPIO_PA_BASE, 0x24, "GamepadDriver");
+	res = request_mem_region(GPIO_PC_BASE, 0x24, "GamepadDriver");
 	if(res == NULL) {
 		printk(KERN_ERR "request_mem_region returned null.");
 		return -1;
 	}
 	
 
-	char* hello = ioremap_nocache(res->start, res->0x24);
-	printk(KERN_NOTICE "%d", hello);
+	gpio_pc_base_address = ioremap_nocache(res->start, 0x24);
+	printk(KERN_NOTICE "Base address: %p\n", gpio_pc_base_address);
+
+	*(gpio_pc_base_address + GPIO_OFFSET_MODEL) = 0x33333333;
+	*(gpio_pc_base_address + GPIO_OFFSET_DOUT) = 0xff;
 
 	return 0;
 }
@@ -85,8 +90,19 @@ static short size_of_message;
 
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	int error_count = copy_to_user(buf, message, size_of_message +1);
-	int i = 0;
+
+	int string_size = 8;
+	uint32_t value = *(gpio_pc_base_address + GPIO_OFFSET_DIN);
+	if((value & 0x1) == 0x1) {
+		copy_to_user(buf, "button1", string_size);
+	} else if((value & 0x2) == 0x2) {
+		copy_to_user(buf, "button2", string_size);
+	} else if((value & 0x4) == 0x4) {
+		copy_to_user(buf, "button3", string_size);
+	} else if((value & 0x8) == 0x8) {
+		copy_to_user(buf, "button4", string_size);
+	}
+
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
 		return 256;
@@ -123,6 +139,9 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 
 static void __exit template_cleanup(void)
 {
+
+	release_mem_region(gpio_pc_base_address, 0x24);
+
 	cdev_del(&gpad_cdev);
 	unregister_chrdev_region(dev, 1);
 	printk("Short life for a small module...\n");

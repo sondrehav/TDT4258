@@ -6,6 +6,17 @@
 #define GPIO_PB_BASE 0x40006024
 #define GPIO_PC_BASE 0x40006048
 
+
+#define GPIO_OFFSET_CTRL     0x00
+#define GPIO_OFFSET_MODEL    0x04
+#define GPIO_OFFSET_MODEH    0x08
+#define GPIO_OFFSET_DOUT     0x0c
+#define GPIO_OFFSET_DOUTSET  0x10
+#define GPIO_OFFSET_DOUTCLR  0x14
+#define GPIO_OFFSET_DOUTTGL  0x18
+#define GPIO_OFFSET_DIN      0x1c
+#define GPIO_OFFSET_PINLOCKN 0x20
+
 #define GPIO_PA_CTRL     ((volatile uint32_t*)(GPIO_PA_BASE + 0x00))
 #define GPIO_PA_MODEL    ((volatile uint32_t*)(GPIO_PA_BASE + 0x04))
 #define GPIO_PA_MODEH    ((volatile uint32_t*)(GPIO_PA_BASE + 0x08))
