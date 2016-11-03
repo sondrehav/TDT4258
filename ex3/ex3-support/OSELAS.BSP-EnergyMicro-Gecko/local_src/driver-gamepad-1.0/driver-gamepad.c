@@ -93,14 +93,20 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 
 	int string_size = 8;
 	uint32_t value = *(gpio_pc_base_address + GPIO_OFFSET_DIN);
+	value = 0xffffffff ^ value;
+
+	int error_count;
+
 	if((value & 0x1) == 0x1) {
-		copy_to_user(buf, "button1", string_size);
+		error_count = copy_to_user(buf, "button1", string_size);
 	} else if((value & 0x2) == 0x2) {
-		copy_to_user(buf, "button2", string_size);
+		error_count = copy_to_user(buf, "button2", string_size);
 	} else if((value & 0x4) == 0x4) {
-		copy_to_user(buf, "button3", string_size);
+		error_count = copy_to_user(buf, "button3", string_size);
 	} else if((value & 0x8) == 0x8) {
-		copy_to_user(buf, "button4", string_size);
+		error_count = copy_to_user(buf, "button4", string_size);
+	} else {
+		error_count = copy_to_user(buf, "no button", 10);
 	}
 
 	if(error_count == 0){

@@ -10,11 +10,12 @@ int main(int argc, char *argv[])
 	fprintf(file, "Test for driver!");
 	
 	int t = (int) fgets(buf, 256 ,file);
-	int i = 0;
-	while (i < 17){
-		printf("%d %c \n", buf[i], buf[i]);
-		i++;
-		}
+
+	
+	
+	while(){
+
+	}
 	printf("Program: %s\n", buf);
 	printf("1?: %d\n", t);
 
