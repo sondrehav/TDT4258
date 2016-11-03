@@ -9,7 +9,8 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <asm/uaccess.h>          // Required for the copy to user function
-
+#include <linux/ioport.h>
+#include <asm/io.h>
 
 dev_t dev;
 
@@ -39,6 +40,9 @@ struct class *cl;
  * Returns 0 if successfull, otherwise -1
  */
 
+
+struct resource* res;
+
 static int __init template_init(void)
 {
 	printk("Hello World, here is your module speaking\n");
@@ -52,6 +56,17 @@ static int __init template_init(void)
 	cl = class_create(THIS_MODULE, "GamepadDriver");
 	device_create(cl, NULL, dev, NULL, "GamepadDriver");
 	printk("Initialization done.");
+
+	res = request_mem_region(GPIO_PA_BASE, 0x24, "GamepadDriver");
+	if(res == NULL) {
+		printk(KERN_ERR "request_mem_region returned null.");
+		return -1;
+	}
+	
+
+	char* hello = ioremap_nocache(res->start, res->0x24);
+	printk(KERN_NOTICE "%d", hello);
+
 	return 0;
 }
 
@@ -68,17 +83,10 @@ static int gpad_release(struct inode *inode, struct file *filep){
 static char message[256] = {0};
 static short size_of_message;
 
+// Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	printk(KERN_NOTICE "Read driver!\n");
-	printk(KERN_NOTICE "Before copy: %s \n", message);
-	printk(KERN_NOTICE "Size msg: %d\n", size_of_message);
 	int error_count = copy_to_user(buf, message, size_of_message +1);
-	printk(KERN_NOTICE "After copy: %s\n", buf);
 	int i = 0;
-	while (i < 17){
-		printk(KERN_NOTICE "%d %c \n", buf[i], buf[i]);
-		i++;
-		}
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
 		return 256;
@@ -88,6 +96,7 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	}
 }
 
+// User sends to driver. When program calls fprintf.
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 	printk(KERN_NOTICE "Write driver!\n");
 	printk(KERN_NOTICE "Driver: %s\n", buf);
