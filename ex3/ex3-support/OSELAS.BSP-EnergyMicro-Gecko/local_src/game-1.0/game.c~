@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
 	fprintf(file, "Test for driver!");
 	
-	int t = (int) fgets(buf, 256 ,file);
+	int t = (int) fgets(buf, 17 ,file);
 	int i = 0;
 	while (i < 17){
 		printf("%d %c \n", buf[i], buf[i]);

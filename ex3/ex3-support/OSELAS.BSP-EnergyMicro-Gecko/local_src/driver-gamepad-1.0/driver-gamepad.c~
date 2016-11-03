@@ -81,7 +81,7 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 		}
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return 256;
+		return size_of_message +1;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 
