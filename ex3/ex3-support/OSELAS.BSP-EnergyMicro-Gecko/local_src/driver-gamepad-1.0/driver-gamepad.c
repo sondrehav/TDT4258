@@ -43,7 +43,7 @@ struct class *cl;
 
 
 struct resource* res;
-uint32_t* gpio_pc_base_address;
+volatile uint32_t* gpio_pc_base_address;
 
 static int __init template_init(void)
 {
@@ -69,8 +69,8 @@ static int __init template_init(void)
 	gpio_pc_base_address = ioremap_nocache(res->start, 0x24);
 	printk(KERN_NOTICE "Base address: %p\n", gpio_pc_base_address);
 
-	*(gpio_pc_base_address + GPIO_OFFSET_MODEL) = 0x33333333;
-	*(gpio_pc_base_address + GPIO_OFFSET_DOUT) = 0xff;
+	iowrite32(0x33333333,  GPIO_PC_MODEL);
+	iowrite32(0xff,  GPIO_PC_DOUT);
 
 	return 0;
 }
@@ -92,9 +92,9 @@ static short size_of_message;
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 
 	int string_size = 8;
-	uint32_t value = *(gpio_pc_base_address + GPIO_OFFSET_DIN);
+	uint32_t value = ioread32(GPIO_PC_DIN);
 	value = 0xffffffff ^ value;
-
+	printk(KERN_NOTICE "%d\n" ,value);
 	int error_count;
 
 	if((value & 0x1) == 0x1) {

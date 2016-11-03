@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -9,15 +11,15 @@ int main(int argc, char *argv[])
 
 	fprintf(file, "Test for driver!");
 	
-	int t = (int) fgets(buf, 256 ,file);
-
-	
-	
-	while(){
-
+	int i = 0;
+	while (i<30) {
+		int t = (int) fgets(buf, 256 ,file);
+		printf("Program: %s\n", buf);
+		printf("1?: %d\n", t);
+		i++; 
+		sleep(1);
 	}
-	printf("Program: %s\n", buf);
-	printf("1?: %d\n", t);
+	
 
 	fclose(file);
 	exit(EXIT_SUCCESS);
