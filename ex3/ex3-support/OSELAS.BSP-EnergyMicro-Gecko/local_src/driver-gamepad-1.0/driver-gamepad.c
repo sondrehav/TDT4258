@@ -20,7 +20,7 @@ static int gpad_open(struct inode *inode, struct file *filep);
 static int gpad_release(struct inode *inode, struct file *filep);
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
-static int fasync(int fd, struct file *filep, int on);
+static int gpad_fasync(int fd, struct file *filep, int on);
 
 static struct file_operations gpad_fops = {
 	.owner = 	THIS_MODULE,
@@ -98,8 +98,8 @@ irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
-	if (gpad_dev->async_queue)
-		kill_fasync(&gpad_dev->async_queue, SIGIO, POLL_IN);
+	if (gpad_cdev->async_queue)
+		kill_fasync(&gpad_cdev->async_queue, SIGIO, POLL_IN);
 	return IRQ_HANDLED;
 }
 
@@ -119,26 +119,10 @@ static short size_of_message;
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 
-	int string_size = 8;
-	uint32_t value = ioread32(GPIO_PC_DIN);
-	value = 0xffffffff ^ value;
-	int error_count;
-	
-	if((value & 0x1) == 0x1) {
-		error_count = copy_to_user(buf, "button1", string_size);
-	} else if((value & 0x2) == 0x2) {
-		error_count = copy_to_user(buf, "button2", string_size);
-	} else if((value & 0x4) == 0x4) {
-		error_count = copy_to_user(buf, "button3", string_size);
-	} else if((value & 0x8) == 0x8) {
-		error_count = copy_to_user(buf, "button4", string_size);
-	} else {
-		error_count = copy_to_user(buf, "no button", 10);
-	}
-	
+	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
-		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return 255;
+		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
+		return 3;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 
@@ -163,7 +147,7 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 	return 0;
 }
 
-static int fasync(int fd, struct file *filep, int on){
+static int gpad_fasync(int fd, struct file *filep, int on){
 	struct cdev *data = file->private_data;
 	fasync_helper(fd, filep, on, &data->async_queue);
 }
