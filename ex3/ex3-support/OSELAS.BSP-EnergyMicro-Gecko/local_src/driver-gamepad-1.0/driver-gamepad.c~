@@ -95,7 +95,6 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	uint32_t value = ioread32(GPIO_PC_DIN);
 	value = 0xffffffff ^ value;
 	int error_count;
-	lmml
 	
 	printk(KERN_NOTICE "Buf before : %x\n" ,buf);
 	if((value & 0x1) == 0x1) {
@@ -109,12 +108,16 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	} else {
 		error_count = copy_to_user(buf, "no button", 10);
 	}
-	
+	int j = 0;
+		while (j < 17){
+			printk(KERN_NOTICE "%d 	%c \n", buf[j], buf[j]);
+			j++;
+			}
 	printk(KERN_NOTICE "Buf after : %x\n" ,buf);
 	
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return 256;
+		return 255;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 

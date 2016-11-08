@@ -96,7 +96,6 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	value = 0xffffffff ^ value;
 	int error_count;
 	
-	printk(KERN_NOTICE "Buf before : %x\n" ,buf);
 	if((value & 0x1) == 0x1) {
 		error_count = copy_to_user(buf, "button1", string_size);
 	} else if((value & 0x2) == 0x2) {
@@ -109,11 +108,9 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 		error_count = copy_to_user(buf, "no button", 10);
 	}
 	
-	printk(KERN_NOTICE "Buf after : %x\n" ,buf);
-	
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return 256;
+		return 255;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 

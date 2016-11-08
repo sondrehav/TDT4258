@@ -13,16 +13,9 @@ int main(int argc, char *argv[])
 	
 	int i = 0;
 	while (i<30) {
-		printf("Buf before : %x\n" ,buf);
 		int t = (int) fgets(buf, 256 ,file);
 		printf("Program: %s\n", buf);
 		printf("1?: %d\n", t);
-		int j = 0;
-		while (j < 17){
-			printf("%d 	%c \n", buf[j], buf[j]);
-			j++;
-			}
-		printf("Buf after : %x\n" ,buf);
 		i++; 
 		sleep(1);
 	}

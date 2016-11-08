@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 			printf("%d 	%c \n", buf[j], buf[j]);
 			j++;
 			}
-		printf("Buf before : %x\n" ,buf);
+		printf("Buf after : %x\n" ,buf);
 		i++; 
 		sleep(1);
 	}
