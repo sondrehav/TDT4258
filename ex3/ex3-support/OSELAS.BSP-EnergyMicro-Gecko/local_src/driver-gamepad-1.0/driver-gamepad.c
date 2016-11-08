@@ -34,6 +34,7 @@ static struct file_operations gpad_fops = {
 struct cdev gpad_cdev;
 struct class *cl;
 
+struct fasync_struct* async_queue;
 
 /*
  * template_init - function to insert this module into kernel space
@@ -98,8 +99,8 @@ irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
-	if (gpad_cdev->async_queue)
-		kill_fasync(&gpad_cdev->async_queue, SIGIO, POLL_IN);
+	if (async_queue)
+		kill_fasync(async_queue, SIGIO, POLL_IN);
 	return IRQ_HANDLED;
 }
 
@@ -149,7 +150,7 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 
 static int gpad_fasync(int fd, struct file *filep, int on){
 	struct cdev *data = file->private_data;
-	fasync_helper(fd, filep, on, &data->async_queue);
+	fasync_helper(fd, filep, on, async_queue);
 }
 
 /*
