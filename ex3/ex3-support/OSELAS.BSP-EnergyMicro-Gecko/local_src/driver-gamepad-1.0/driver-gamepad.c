@@ -12,6 +12,7 @@
 #include <linux/ioport.h>
 #include <asm/io.h>
 #include <linux/interrupt.h>
+#include <linux/signal.h>
 #include "efm32gg.h"
 
 dev_t dev;
@@ -86,6 +87,7 @@ static int __init template_init(void)
 	iowrite32(0xff, GPIO_EXTIFALL);
 	iowrite32(0xff, GPIO_EXTIRISE);
 	iowrite32(0xff, GPIO_IEN);
+	iowrite32(0xff, GPIO_IFC);
 	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
@@ -100,7 +102,7 @@ irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
 	if (async_queue)
-		kill_fasync(async_queue, SIGIO, POLL_IN);
+		kill_fasync(&async_queue, SIGIO, POLL_IN);
 	return IRQ_HANDLED;
 }
 
@@ -120,6 +122,8 @@ static short size_of_message;
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 
+	//printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
+	
 	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
@@ -149,8 +153,8 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 }
 
 static int gpad_fasync(int fd, struct file *filep, int on){
-	struct cdev *data = file->private_data;
-	fasync_helper(fd, filep, on, async_queue);
+	printk(KERN_INFO "gpad_fasync ....");
+	return fasync_helper(fd, filep, on, &async_queue);
 }
 
 /*

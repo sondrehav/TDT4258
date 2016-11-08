@@ -12,6 +12,7 @@
 #include <linux/ioport.h>
 #include <asm/io.h>
 #include <linux/interrupt.h>
+#include <linux/signal.h>
 #include "efm32gg.h"
 
 dev_t dev;
@@ -20,18 +21,21 @@ static int gpad_open(struct inode *inode, struct file *filep);
 static int gpad_release(struct inode *inode, struct file *filep);
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
+static int gpad_fasync(int fd, struct file *filep, int on);
 
 static struct file_operations gpad_fops = {
 	.owner = 	THIS_MODULE,
 	.read = 	gpad_read,
 	.write = 	gpad_write,
 	.open = 	gpad_open,
-	.release = 	gpad_release
+	.release = 	gpad_release,
+	.fasync =	gpad_fasync
 };
 
 struct cdev gpad_cdev;
 struct class *cl;
 
+struct fasync_struct* async_queue;
 
 /*
  * template_init - function to insert this module into kernel space
@@ -83,13 +87,13 @@ static int __init template_init(void)
 	iowrite32(0xff, GPIO_EXTIFALL);
 	iowrite32(0xff, GPIO_EXTIRISE);
 	iowrite32(0xff, GPIO_IEN);
+	iowrite32(0xff, GPIO_IFC);
 	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
 	return 0;
 }
-static uint32_t button_value = 0;
-
+static uint32_t button_value;
 
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 {
@@ -97,6 +101,8 @@ irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
+	if (async_queue)
+		kill_fasync(&async_queue, SIGIO, POLL_IN);
 	return IRQ_HANDLED;
 }
 
@@ -116,26 +122,12 @@ static short size_of_message;
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 
-	int string_size = 8;
-	uint32_t value = ioread32(GPIO_PC_DIN);
-	value = 0xffffffff ^ value;
-	int error_count;
+	printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
 	
-	if((value & 0x1) == 0x1) {
-		error_count = copy_to_user(buf, "button1", string_size);
-	} else if((value & 0x2) == 0x2) {
-		error_count = copy_to_user(buf, "button2", string_size);
-	} else if((value & 0x4) == 0x4) {
-		error_count = copy_to_user(buf, "button3", string_size);
-	} else if((value & 0x8) == 0x8) {
-		error_count = copy_to_user(buf, "button4", string_size);
-	} else {
-		error_count = copy_to_user(buf, "no button", 10);
-	}
-	
+	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
-		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
-		return 255;
+		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
+		return 3;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
 		return -14; 
@@ -160,6 +152,10 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 	return 0;
 }
 
+static int gpad_fasync(int fd, struct file *filep, int on){
+	printk(KERN_INFO "gpad_fasync ....");
+	return fasync_helper(fd, filep, on, &async_queue);
+}
 
 /*
  * template_cleanup - function to cleanup this module from kernel space
