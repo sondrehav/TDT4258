@@ -81,19 +81,21 @@ static int __init template_init(void)
 	// Setting up interrupt
 	iowrite32(0x22222222, GPIO_EXTIPSELL);
 	iowrite32(0xff, GPIO_EXTIFALL);
+	iowrite32(0xff, GPIO_EXTIRISE);
 	iowrite32(0xff, GPIO_IEN);
 	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
 	return 0;
 }
+static uint32_t button_value = 0;
+
 
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 {
-	uint32_t value = ioread32(GPIO_PC_DIN);
-	value = value ^ 0xffffffff;
-	printk(KERN_NOTICE "Value: %x\n", value);
-	gpio_if_value = ioread32(GPIO_IF);
+	button_value = ioread32(GPIO_PC_DIN)  ^ 0xffffffff;
+	printk(KERN_NOTICE "Value: %x\n", button_value);
+	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
 	return IRQ_HANDLED;
 }
