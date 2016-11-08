@@ -20,13 +20,15 @@ static int gpad_open(struct inode *inode, struct file *filep);
 static int gpad_release(struct inode *inode, struct file *filep);
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
+static int fasync(int fd, struct file *filep, int on);
 
 static struct file_operations gpad_fops = {
 	.owner = 	THIS_MODULE,
 	.read = 	gpad_read,
 	.write = 	gpad_write,
 	.open = 	gpad_open,
-	.release = 	gpad_release
+	.release = 	gpad_release,
+	.fasync =	gpad_fasync
 };
 
 struct cdev gpad_cdev;
@@ -96,6 +98,8 @@ irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 	printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
+	if (gpad_dev->async_queue)
+		kill_fasync(&gpad_dev->async_queue, SIGIO, POLL_IN);
 	return IRQ_HANDLED;
 }
 
@@ -159,6 +163,10 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 	return 0;
 }
 
+static int fasync(int fd, struct file *filep, int on){
+	struct cdev *data = file->private_data;
+	fasync_helper(fd, filep, on, &data->async_queue);
+}
 
 /*
  * template_cleanup - function to cleanup this module from kernel space
