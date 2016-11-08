@@ -11,6 +11,7 @@
 #include <asm/uaccess.h>          // Required for the copy to user function
 #include <linux/ioport.h>
 #include <asm/io.h>
+#include <linux/interrupt.h>
 #include "efm32gg.h"
 
 dev_t dev;
@@ -41,9 +42,9 @@ struct class *cl;
  * Returns 0 if successfull, otherwise -1
  */
 
+irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs);
 
 struct resource* res;
-volatile uint32_t* gpio_pc_base_address;
 
 static int __init template_init(void)
 {
@@ -64,15 +65,37 @@ static int __init template_init(void)
 		printk(KERN_ERR "request_mem_region returned null.");
 		return -1;
 	}
+	ioremap_nocache(res->start, 0x24);
 	
-
-	gpio_pc_base_address = ioremap_nocache(res->start, 0x24);
-	printk(KERN_NOTICE "Base address: %p\n", gpio_pc_base_address);
-
+	res = request_mem_region(GPIO_EXTIPSELL, 0x12, "GamepadDriver");
+	if(res == NULL) {
+		printk(KERN_ERR "request_mem_region returned null.");
+		return -1;
+	}
+	ioremap_nocache(res->start, 0x12);
+	
+	// Setting up buttons
 	iowrite32(0x33333333,  GPIO_PC_MODEL);
 	iowrite32(0xff,  GPIO_PC_DOUT);
 
+	// Setting up interrupt
+	iowrite32(0x22222222, GPIO_EXTIPSELL);
+	iowrite32(0xff, GPIO_EXTIFALL);
+	iowrite32(0xff, GPIO_IEN);
+	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
+	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
+	
 	return 0;
+}
+
+irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+{
+	uint32_t value = ioread32(GPIO_PC_DIN);
+	value = value ^ 0xffffffff;
+	printk(KERN_NOTICE "Value: %x\n", value);
+	gpio_if_value = ioread32(GPIO_IF);
+	iowrite32(gpio_if_value, GPIO_IFC);
+	return IRQ_HANDLED;
 }
 
 static int gpad_open(struct inode *inode, struct file *filep){
@@ -96,7 +119,6 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	value = 0xffffffff ^ value;
 	int error_count;
 	
-	printk(KERN_NOTICE "Buf before : %x\n" ,buf);
 	if((value & 0x1) == 0x1) {
 		error_count = copy_to_user(buf, "button1", string_size);
 	} else if((value & 0x2) == 0x2) {
@@ -108,12 +130,6 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	} else {
 		error_count = copy_to_user(buf, "no button", 10);
 	}
-	int j = 0;
-		while (j < 17){
-			printk(KERN_NOTICE "%d 	%c \n", buf[j], buf[j]);
-			j++;
-			}
-	printk(KERN_NOTICE "Buf after : %x\n" ,buf);
 	
 	if(error_count == 0){
 		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
@@ -153,8 +169,12 @@ static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, lo
 static void __exit template_cleanup(void)
 {
 
-	release_mem_region(gpio_pc_base_address, 0x24);
+	free_irq(17, NULL);
+	free_irq(18, NULL);
 
+	release_mem_region(GPIO_PC_BASE, 0x24);
+	release_mem_region(GPIO_EXTIPSELL, 0x12);
+	
 	cdev_del(&gpad_cdev);
 	unregister_chrdev_region(dev, 1);
 	printk("Short life for a small module...\n");
