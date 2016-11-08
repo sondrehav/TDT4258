@@ -8,12 +8,29 @@
 
 void input_handler();
 uint32_t button_value;
+uint32_t last_button_value;
 FILE* file;
-int last_button_value;
+
+void b1(){
+	printf("Hello?1\n");
+}
+
+void b2(){
+	printf("Hello?2\n");	
+}
+
+void b3(){
+	printf("Hello?3\n");
+}
+
+void b4(){
+	printf("Hello?4\n");
+}
+
+void (*function_pointers[8]) (void);
 
 int main(int argc, char *argv[])
-{	
-	last_button_value = 0;
+{
 	int oflags;
 	printf("Hello World, I'm game!\n");
 	file = fopen("dev/GamepadDriver", "r+w+");
@@ -31,7 +48,11 @@ int main(int argc, char *argv[])
 		}
 	fprintf("Getpid: %x \n",getpid());
 	fprintf(file, "Test for driver!");
-	
+	function_pointers[0] = b1;
+	function_pointers[1] = b2;
+	function_pointers[2] = b3;
+	function_pointers[3] = b4;
+	last_button_value = 0;
 	int i = 0;
 	while (i<20) {
 		i++; 
@@ -42,35 +63,14 @@ int main(int argc, char *argv[])
 	exit(EXIT_SUCCESS);
 }
 
-void b1(){
-	printf("Button1\n");
-}
-
-void b2(){
-	printf("Button2\n");	
-}
-
-void b3(){
-	printf("Button3\n");
-}
-
-void b4(){
-	printf("Button4\n");
-}
-
 void input_handler(){
 	int t = (int) fgets(&button_value, 4, file);
-	if(((button_value & 0x1) == 0x1) && ((last_button_value & 0x1) != 0x1)) {
-		b1();
-	}
-	if(((button_value & 0x2) == 0x2) && ((last_button_value & 0x2) != 0x2)) {
-		b2();
-	}
-	if(((button_value & 0x4) == 0x4) && ((last_button_value & 0x4) != 0x4)) {
-		b3();
-	}
-	if(((button_value & 0x8) == 0x8) && ((last_button_value & 0x8) != 0x8)) {
-		b4();
+
+	for(int i = 0; i < 8; i++) {
+		uint32_t mask = (0x1 << i);
+		if(((button_value & mask) == mask) && ((last_button_value & mask) != mask)){
+			(*p[i])();
+		}
 	}
 
 	last_button_value = button_value;
