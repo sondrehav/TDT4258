@@ -12,19 +12,19 @@ uint32_t last_button_value;
 FILE* file;
 
 void b1(){
-	printf("Hello?1\n");
+	printf("Button1\n");
 }
 
 void b2(){
-	printf("Hello?2\n");	
+	printf("Button2\n");	
 }
 
 void b3(){
-	printf("Hello?3\n");
+	printf("Button3\n");
 }
 
 void b4(){
-	printf("Hello?4\n");
+	printf("Button4\n");
 }
 
 void (*function_pointers[8]) (void);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	function_pointers[3] = b4;
 	last_button_value = 0;
 	int i = 0;
-	while (i<20) {
+	while (i<100) {
 		i++; 
 		sleep(1);
 	}
@@ -65,12 +65,13 @@ int main(int argc, char *argv[])
 
 void input_handler(){
 	int t = (int) fgets(&button_value, 4, file);
-
-	for(int i = 0; i < 8; i++) {
+	int i = 0;
+	while (i<8){
 		uint32_t mask = (0x1 << i);
 		if(((button_value & mask) == mask) && ((last_button_value & mask) != mask)){
-			(*p[i])();
+			(*function_pointers[i])();
 		}
+		i++;
 	}
 
 	last_button_value = button_value;
