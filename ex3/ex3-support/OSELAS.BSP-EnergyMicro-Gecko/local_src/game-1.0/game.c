@@ -9,9 +9,11 @@
 void input_handler();
 uint32_t button_value;
 FILE* file;
+int last_button_value;
 
 int main(int argc, char *argv[])
-{
+{	
+	last_button_value = 0;
 	int oflags;
 	printf("Hello World, I'm game!\n");
 	file = fopen("dev/GamepadDriver", "r+w+");
@@ -41,34 +43,33 @@ int main(int argc, char *argv[])
 }
 
 void b1(){
-	printf("Hello?1\n");
+	printf("Button1\n");
 }
 
 void b2(){
-	printf("Hello?2\n");	
+	printf("Button2\n");	
 }
 
 void b3(){
-	printf("Hello?3\n");
+	printf("Button3\n");
 }
 
 void b4(){
-	printf("Hello?4\n");
+	printf("Button4\n");
 }
 
 void input_handler(){
 	int t = (int) fgets(&button_value, 4, file);
-
-	if((button_value & 0x1 == 0x1) && (last_button_value & 0x1 == 0x1)) {
+	if(((button_value & 0x1) == 0x1) && ((last_button_value & 0x1) != 0x1)) {
 		b1();
 	}
-	if((button_value & 0x2 == 0x2) && (last_button_value & 0x2 == 0x2)) {
+	if(((button_value & 0x2) == 0x2) && ((last_button_value & 0x2) != 0x2)) {
 		b2();
 	}
-	if((button_value & 0x4 == 0x4) && (last_button_value & 0x4 == 0x4)) {
+	if(((button_value & 0x4) == 0x4) && ((last_button_value & 0x4) != 0x4)) {
 		b3();
 	}
-	if((button_value & 0x8 == 0x8) && (last_button_value & 0x8 == 0x8)) {
+	if(((button_value & 0x8) == 0x8) && ((last_button_value & 0x8) != 0x8)) {
 		b4();
 	}
 
