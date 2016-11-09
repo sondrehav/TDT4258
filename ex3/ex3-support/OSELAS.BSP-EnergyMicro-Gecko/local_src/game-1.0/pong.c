@@ -31,6 +31,7 @@ static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, co
 
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
+	drawRectangle(0,0,320,240, createColor(0,0,0));
 	for (int j=0; j<30; j++){
 		sleep(1);
 	}
