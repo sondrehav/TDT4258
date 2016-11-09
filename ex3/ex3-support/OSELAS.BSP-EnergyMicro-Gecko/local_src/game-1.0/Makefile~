@@ -8,12 +8,12 @@
 #
 CC = arm-cortexm3-uclinuxeabi-gcc
 CFLAGS += -O2 -g -W -Wall #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
-# CPPFLAGS +=
+#CPPFLAGS +=
 LDFLAGS += -lm
 
 OBJECTS = pong.o
 
-all: 
+all: game
 
 game: ${OBJECTS}
 	${CC} ${CFLAGS} game.c ${OBJECTS}  -o game ${LDFLAGS} 

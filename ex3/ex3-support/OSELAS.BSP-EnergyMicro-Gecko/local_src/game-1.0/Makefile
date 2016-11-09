@@ -7,7 +7,7 @@
 # but don't remove the "+="
 #
 CC = arm-cortexm3-uclinuxeabi-gcc
-CFLAGS += -O2 -g -W -Wall #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
+CFLAGS += -O2 -g -W -Wall -std=c99 #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 #CPPFLAGS +=
 LDFLAGS += -lm
 

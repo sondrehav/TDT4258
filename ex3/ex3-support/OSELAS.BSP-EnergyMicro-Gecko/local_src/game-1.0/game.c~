@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <stdint.h>
 #include "pong.h"
 
 void input_handler();
@@ -18,7 +14,7 @@ int main(int argc, char *argv[])
 	int oflags;
 	printf("Hello World, I'm game!\n");
 	gamepadDriver = fopen("dev/GamepadDriver", "r+w+");
-	framebufferDriver = fopen("dev/fb0", "r+b");
+	framebufferDriver = fopen("dev/fb0", "rb+");
 	if (signal(SIGIO, &input_handler)== SIG_ERR){
 		printf("ERROR1 \n");
 	} /* dummy sample; sigaction() is better */ 
@@ -38,7 +34,8 @@ int main(int argc, char *argv[])
 	last_button_value = 0;
 	
 	enterGame(framebufferDriver);
-
+	printf("Game done");
+	
 	fclose(gamepadDriver);
 	fclose(framebufferDriver);
 	exit(EXIT_SUCCESS);

@@ -1,3 +1,8 @@
+
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 1
+#define _GNU_SOURCE 1
+#endif
 #include <fcntl.h>
 #include <signal.h>
 #include "pong.h"
@@ -34,7 +39,8 @@ int main(int argc, char *argv[])
 	last_button_value = 0;
 	
 	enterGame(framebufferDriver);
-
+	printf("Game done");
+	
 	fclose(gamepadDriver);
 	fclose(framebufferDriver);
 	exit(EXIT_SUCCESS);

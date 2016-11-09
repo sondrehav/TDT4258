@@ -1,3 +1,4 @@
+
 #include "pong.h"
 
 FILE* framebuffer;
@@ -13,24 +14,26 @@ static color createColor(uint8_t r, uint8_t g, uint8_t b)
 	return c;
 }
 
-static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1 uint32_t y1, color col) {
+static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color col) {
 	
 
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
-	for(uint32_t y = y0; y = y1; y++) {
+	for(uint32_t y = y0; y < y1; y++) {
 		fseek(framebuffer, sizeof(color) * (320 * y + x0), SEEK_SET);
-		for(uint32_t x = x0; x = x1; x++) {
+		for(uint32_t x = x0; x < x1; x++) {
 			colorArray[x - x0] = col;
 		}
-		fwrite(colorArray, sizef(color), x1 - x0, framebuffer);
+		fwrite(colorArray, sizeof(color), x1 - x0, framebuffer);
 	}
-	free(color);
+	free(colorArray);
 
 }
 
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
-	sleep(30);
+	for (int j=0; j<30; j++){
+		sleep(1);
+	}
 }
 
 void onKeyDown(uint32_t key) {
