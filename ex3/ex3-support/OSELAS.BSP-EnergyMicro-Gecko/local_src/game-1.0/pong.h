@@ -1,8 +1,8 @@
 
 
-static void enterGame(FILE* framebufferDriver);
+void enterGame(FILE* framebufferDriver);
 
-static void onKeyDown(uint32_t key);
+void onKeyDown(uint32_t key);
 
-static void onKeyUp(uint32_t key);
+void onKeyUp(uint32_t key);
 
