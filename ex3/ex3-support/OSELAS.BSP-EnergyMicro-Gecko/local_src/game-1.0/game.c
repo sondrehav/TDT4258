@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 	int oflags;
 	printf("Hello World, I'm game!\n");
 	gamepadDriver = fopen("dev/GamepadDriver", "r+w+");
-	framebufferDriver = fopen("dev/fb0", "r+b");
+	framebufferDriver = fopen("dev/fb0", "rb+");
 	if (signal(SIGIO, &input_handler)== SIG_ERR){
 		printf("ERROR1 \n");
 	} /* dummy sample; sigaction() is better */ 

@@ -13,19 +13,30 @@ static color createColor(uint8_t r, uint8_t g, uint8_t b)
 	return c;
 }
 
+static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1 uint32_t y1, color col) {
+	
+
+	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
+	for(uint32_t y = y0; y = y1; y++) {
+		fseek(framebuffer, sizeof(color) * (320 * y + x0), SEEK_SET);
+		for(uint32_t x = x0; x = x1; x++) {
+			colorArray[x - x0] = col;
+		}
+		fwrite(colorArray, sizef(color), x1 - x0, framebuffer);
+	}
+	free(color);
+
+}
+
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
-	const uint16_t* arr = {7, 643, 1, 35635, 1244, 4574, 58753, 34325};
-	fwrite(arr, sizeof(uint16_t), 8, framebuffer);
 	sleep(30);
 }
 
 void onKeyDown(uint32_t key) {
-	const uint16_t* arr = {5 * key, 11 * key, 13 * key, 17 * key, 19 * key, 23 * key, 29 * key, 31 * key};
-	fwrite(arr, sizeof(uint16_t), 8, framebuffer);
+	drawRectangle(key * 20, key * 20, (key + 1) * 20, (key + 1) * 20, createColor(127, 127, 255));
 }
 
 void onKeyUp(uint32_t key) {
-	const uint16_t* arr = {0, 0, 0, 0, 0, 0, 0, 0};
-	fwrite(arr, sizeof(uint16_t), 8, framebuffer);	
+	drawRectangle(key * 20, key * 20, (key + 1) * 20, (key + 1) * 20, createColor(0, 0, 0));
 }
