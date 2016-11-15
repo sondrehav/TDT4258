@@ -36,6 +36,9 @@ Ball ball;
 PlayerState leftPlayer;
 PlayerState rightPlayer;
 
+uint32_t playerLeftScore;
+uint32_t playerRightScore;
+
 static color createColor(uint8_t r, uint8_t g, uint8_t b)
 {
 	color c = 0;
@@ -47,7 +50,6 @@ static color createColor(uint8_t r, uint8_t g, uint8_t b)
 
 static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color col) {
 	
-
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
 	for(uint32_t y = y0; y < y1; y++) {
 		fseek(framebuffer, sizeof(color) * (SCREEN_WIDTH * y + x0), SEEK_SET);
@@ -171,6 +173,39 @@ void ballPlayerTest(PlayerState* player) {
 	}
 }
 
+void redrawNumber(){
+	int leftX = 27;
+	int rightX = 34;
+	int y = 7;
+	toScreenSpace(&leftX, &right, &y, &y); // TODO: Ugly code is ugly
+	color c = createColor(255, 255, 255);
+	drawNumber(leftX, y, c, playerLeftScore, framebuffer);
+	drawNumber(rightX, y, c, playerRightScore, framebuffer);
+}
+
+void resetScore(){
+	playerRightScore = 0;
+	playerLeftScore = 0;
+}
+
+void reset() {
+	
+	leftPlayer.leftBoardPosition = true;
+	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+	rightPlayer.leftBoardPosition = false;
+	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+
+	ball.x = V_SCREEN_WIDTH / 2;
+	ball.y = V_SCREEN_HEIGHT / 2;
+	ball.lastX = V_SCREEN_WIDTH / 2 - 1;
+	ball.lastY = V_SCREEN_HEIGHT / 2 - 1;
+
+	if(playerLeftScore > 9 || playerRightScore > 9) {
+		resetScore();
+	}
+
+}
+
 void gameLogic() {
 	if(ball.y <= 0) {
 		ball.y = 1;
@@ -180,11 +215,13 @@ void gameLogic() {
 		ball.lastY = V_SCREEN_HEIGHT - 1;
 	}
 	if(ball.x <= 0) {
-		ball.x = 1;
-		ball.lastX = 0;
+		playerRightScore += 1;
+		reset();
+		redrawNumber();
 	} else if(ball.x >= V_SCREEN_WIDTH - 1) {
-		ball.x = V_SCREEN_WIDTH - 2;
-		ball.lastX = V_SCREEN_WIDTH - 1;
+		playerLeftScore += 1;
+		reset();
+		redrawNumber();
 	}
 
 }
@@ -205,15 +242,11 @@ void enterGameLoop() {
 	color white = createColor(255, 255, 255);
 	color black = createColor(0,0,0);
 	
-	leftPlayer.leftBoardPosition = true;
-	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
-	rightPlayer.leftBoardPosition = false;
-	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+	playerLeftScore = 0;
+	playerRightScore = 0;
 
-	ball.x = V_SCREEN_WIDTH / 2;
-	ball.y = V_SCREEN_HEIGHT / 2;
-	ball.lastX = V_SCREEN_WIDTH / 2 - 1;
-	ball.lastY = V_SCREEN_HEIGHT / 2 - 1;
+	reset();
+	redrawNumber();
 
 	struct timespec start;
 	struct timespec now;
