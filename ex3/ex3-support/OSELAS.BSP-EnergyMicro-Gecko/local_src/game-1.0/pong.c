@@ -28,6 +28,7 @@ typedef struct Ball
 	uint32_t lastY;
 } Ball;
 
+
 void drawBoard();
 void enterGameLoop();
 void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer);
@@ -48,6 +49,9 @@ static color createColor(uint8_t r, uint8_t g, uint8_t b)
 	return c;
 }
 
+static const color whiteColor = 0xffffffff;
+static const color blackColor = 0x00000000;
+
 static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color col) {
 	
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
@@ -64,7 +68,7 @@ static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, co
 
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
-	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, createColor(0,0,0));
+	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
 	drawBoard();
 	enterGameLoop();
 }
@@ -92,7 +96,7 @@ void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
 }
 
 void drawBoard(){
-	color color = createColor(255, 255, 255);
+	
 	{ // mid line
 		uint32_t mid = V_SCREEN_WIDTH / 2;
 		uint32_t x0 = mid;
@@ -100,7 +104,7 @@ void drawBoard(){
 		uint32_t y0 = 0;
 		uint32_t y1 = V_SCREEN_HEIGHT;
 		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, color);
+		drawRectangle(x0, y0, x1, y1, whiteColor);
 	}
 	{ // top line
 		uint32_t x0 = 0;
@@ -108,7 +112,7 @@ void drawBoard(){
 		uint32_t y0 = 0;
 		uint32_t y1 = 1;
 		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, color);
+		drawRectangle(x0, y0, x1, y1, whiteColor);
 	}
 	{ // bottom line
 		uint32_t x0 = 0;
@@ -116,7 +120,7 @@ void drawBoard(){
 		uint32_t y0 = V_SCREEN_HEIGHT - 1;
 		uint32_t y1 = V_SCREEN_HEIGHT;
 		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, color);
+		drawRectangle(x0, y0, x1, y1, whiteColor);
 	}
 }
 
@@ -136,19 +140,17 @@ void drawPlayer(PlayerState* player, color colorIn) {
 }
 
 void playerMovement(PlayerState *player) {
-	color black = createColor(0,0,0);
-	color white = createColor(255, 255, 255);
 	if(player->movingUp && 
 		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
-		drawPlayer(player, black);
+		drawPlayer(player, blackColor);
 		player->verticalPosition -= 1;
-		drawPlayer(player, white);
+		drawPlayer(player, whiteColor);
 	}
 	if(player->movingDown && 
 		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
-		drawPlayer(player, black);
+		drawPlayer(player, blackColor);
 		player->verticalPosition += 1;
-		drawPlayer(player, white);
+		drawPlayer(player, whiteColor);
 	}
 }
 
@@ -185,9 +187,8 @@ void redrawNumber(){
 	int rightX = 34;
 	int y = 7;
 	toScreenSpace(&leftX, &rightX, &y, &y); // TODO: Ugly code is ugly
-	color c = createColor(255, 255, 255);
-	drawNumber(leftX, y, c, playerLeftScore, framebuffer);
-	drawNumber(rightX, y, c, playerRightScore, framebuffer);
+	drawNumber(leftX, y, whiteColor, playerLeftScore, framebuffer);
+	drawNumber(rightX, y, whiteColor, playerRightScore, framebuffer);
 }
 
 void resetScore(){
@@ -201,11 +202,8 @@ void reset() {
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
 
-	color white = createColor(255, 255, 255);
-	color black = createColor(0,0,0);
-	
-	drawPlayer(&leftPlayer, black);
-	drawPlayer(&rightPlayer, black);
+	drawPlayer(&leftPlayer, blackColor);
+	drawPlayer(&rightPlayer, blackColor);
 	
 	leftPlayer.leftBoardPosition = true;
 	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
@@ -217,8 +215,8 @@ void reset() {
 	ball.lastX = V_SCREEN_WIDTH / 2 + (2 * ((rand / 2)) - 1);
 	ball.lastY = V_SCREEN_HEIGHT / 2 + (2 * ((rand % 2)) - 1);
 
-	drawPlayer(&leftPlayer, white);
-	drawPlayer(&rightPlayer, white);
+	drawPlayer(&leftPlayer, whiteColor);
+	drawPlayer(&rightPlayer, whiteColor);
 
 	if(playerLeftScore > 9 || playerRightScore > 9) {
 		resetScore();
@@ -259,9 +257,6 @@ void drawBall(color c) {
 
 void enterGameLoop() {
 
-	color white = createColor(255, 255, 255);
-	color black = createColor(0,0,0);
-	
 	playerLeftScore = 0;
 	playerRightScore = 0;
 
@@ -277,7 +272,7 @@ void enterGameLoop() {
 
 		clock_gettime(CLOCK_MONOTONIC, &start);
 
-		drawBall(black);
+		drawBall(blackColor);
 
 		playerMovement(&leftPlayer);
 		playerMovement(&rightPlayer);
@@ -288,7 +283,7 @@ void enterGameLoop() {
 
 		gameLogic();
 
-		drawBall(white);
+		drawBall(whiteColor);
 		
 		clock_gettime(CLOCK_MONOTONIC, &now);
 		
