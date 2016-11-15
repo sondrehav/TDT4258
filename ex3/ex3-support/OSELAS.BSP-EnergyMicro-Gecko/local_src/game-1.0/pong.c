@@ -66,7 +66,6 @@ void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, createColor(0,0,0));
 	drawBoard();
-	drawNumber(40,40, 0xffff, 2, framebuffer);
 	enterGameLoop();
 }
 
@@ -157,8 +156,8 @@ void ballMovement() {
 
 void ballPlayerTest(PlayerState* player) {
 	uint32_t x_player;
-	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
-	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
+	if(player->leftBoardPosition) x_player = PLAYER_SCREEN_OFFSET;
+	else x_player = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
 	if(ball.x == x_player) {
 		uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 		uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
@@ -177,7 +176,7 @@ void redrawNumber(){
 	int leftX = 27;
 	int rightX = 34;
 	int y = 7;
-	toScreenSpace(&leftX, &right, &y, &y); // TODO: Ugly code is ugly
+	toScreenSpace(&leftX, &rightX, &y, &y); // TODO: Ugly code is ugly
 	color c = createColor(255, 255, 255);
 	drawNumber(leftX, y, c, playerLeftScore, framebuffer);
 	drawNumber(rightX, y, c, playerRightScore, framebuffer);
@@ -227,10 +226,10 @@ void gameLogic() {
 }
 
 void drawBall(color c) {
-	if(x0 == V_SCREEN_WIDTH / 2) return;
+	if(ball.x == V_SCREEN_WIDTH / 2) return;
 	uint32_t x0 = ball.x;
 	uint32_t x1 = x0 + 1;
-	uint32_t y0 = ball.y
+	uint32_t y0 = ball.y;
 	uint32_t y1 = y0 + 1;
 	toScreenSpace(&x0, &y0, &x1, &y1);
 	drawRectangle(x0, y0, x1, y1, c);
