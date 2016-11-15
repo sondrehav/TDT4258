@@ -57,6 +57,7 @@ void enterGame(FILE* framebufferDriver) {
 }
 
 void onKeyDown(uint32_t key) {
+	printf("%d\n",key);
 	if(key == 1) leftPlayer.movingUp = true;
 	else if(key == 3) leftPlayer.movingDown = true;
 	else if(key == 5) rightPlayer.movingUp = true;
@@ -78,7 +79,7 @@ void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
 }
 
 void drawBoard(){
-	color = createColor(255, 255, 255);
+	color color = createColor(255, 255, 255);
 	{ // mid line
 		uint32_t mid = V_SCREEN_WIDTH / 2;
 		uint32_t x0 = mid;
@@ -122,15 +123,14 @@ void drawBoard(){
 	}
 }
 
-void playerMovement(PlayerState player) {
-	if(player.movingUp) player.verticalPosition += 1;
-	if(player.movingDown) player.verticalPosition -= 1;
+void playerMovement(PlayerState *player) {
+	if(player->movingUp) player->verticalPosition -= 1;
+	if(player->movingDown) player->verticalPosition += 1;
 }
 
 #define PLAYER_HEIGHT 			8
 #define PLAYER_SCREEN_OFFSET	4
-void drawPlayer(PlayerState player) {
-	color color = createColor(255, 255, 255);
+void drawPlayer(PlayerState player, color colorIn) {
 	uint32_t x0;
 	if(player.leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
 	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
@@ -138,22 +138,27 @@ void drawPlayer(PlayerState player) {
 	uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2;
 	uint32_t y1 = player.verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
-	drawRectangle(x0, y0, x1, y1, color);
+	drawRectangle(x0, y0, x1, y1, colorIn);
 }
 
 void enterGameLoop() {
+
+	color white = createColor(255, 255, 255);
+	color black = createColor(0,0,0);
 	leftPlayer.leftBoardPosition = true;
 	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
 	rightPlayer.leftBoardPosition = false;
 	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
 	while(true) {
-		playerMovement(leftPlayer);
-		playerMovement(rightPlayer);
+		drawPlayer(leftPlayer, black);
+		drawPlayer(rightPlayer, black);
+		playerMovement(&leftPlayer);
+		playerMovement(&rightPlayer);
 
 		// gamelogic goes here
 
-		drawPlayer(leftPlayer);
-		drawPlayer(rightPlayer);
+		drawPlayer(leftPlayer, white);
+		drawPlayer(rightPlayer, white);
 		sleep(1);
 	}
 }
