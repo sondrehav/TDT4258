@@ -117,22 +117,6 @@ void drawBoard(){
 		toScreenSpace(&x0, &y0, &x1, &y1);
 		drawRectangle(x0, y0, x1, y1, color);
 	}
-	{ // left line
-		uint32_t x0 = 0;
-		uint32_t x1 = 1;
-		uint32_t y0 = 0;
-		uint32_t y1 = V_SCREEN_HEIGHT;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, color);
-	}
-	{ // right line
-		uint32_t x0 = V_SCREEN_WIDTH - 1;
-		uint32_t x1 = V_SCREEN_WIDTH;
-		uint32_t y0 = 0;
-		uint32_t y1 = V_SCREEN_HEIGHT;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, color);
-	}
 }
 
 #define PLAYER_HEIGHT 			8
@@ -161,8 +145,30 @@ void drawPlayer(PlayerState player, color colorIn) {
 }
 
 void ballMovement() {
+	uint32_t x = ball.x;
+	uint32_t y = ball.y;
 	ball.x = ball.x + ball.x - ball.lastX;
 	ball.y = ball.y + ball.y - ball.lastY;
+	ball.lastX = x;
+	ball.lastY = y;
+}
+
+void ballPlayerTest(PlayerState* player) {
+	uint32_t x_player;
+	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
+	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
+	if(ball.x == x_player) {
+		uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
+		uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
+		if(ball.y >= y0 && ball.y < y1) {
+			// hit
+			if(player->leftBoardPosition) {
+				ball.lastX = ball.lastX - 1;
+			} else {
+				ball.lastX = ball.lastX + 1;
+			}
+		}
+	}
 }
 
 void gameLogic() {
@@ -184,6 +190,7 @@ void gameLogic() {
 }
 
 void drawBall(color c) {
+	if(x0 == V_SCREEN_WIDTH / 2) return;
 	uint32_t x0 = ball.x;
 	uint32_t x1 = x0 + 1;
 	uint32_t y0 = ball.y
@@ -219,9 +226,14 @@ void enterGameLoop() {
 
 		drawPlayer(leftPlayer, black);
 		drawPlayer(rightPlayer, black);
+		drawBall(black);
+
 		playerMovement(&leftPlayer);
 		playerMovement(&rightPlayer);
-		drawBall(black);
+		ballMovement();
+
+		ballPlayerTest(&leftPlayer);
+		ballPlayerTest(&rightPlayer);
 
 		gameLogic();
 
@@ -234,7 +246,10 @@ void enterGameLoop() {
 		time_t secDiff = now.tv_sec - start.tv_sec;
 		
 		long remainingTime = frameTimeNanoSec - now.tv_sec + start.tv_sec - (secDiff * 1000000000);
-		if (remainingTime < 0) remainingTime =0;
+		if (remainingTime < 0) {
+			printf("Max frame time!\n");
+			remainingTime = 0;
+		}
 		now.tv_sec = 0;
 		now.tv_nsec = remainingTime;
 
