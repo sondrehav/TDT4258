@@ -122,7 +122,7 @@ static short size_of_message;
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
 
-	printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
+	//printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
 	
 	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){

@@ -98,7 +98,7 @@ static uint32_t button_value;
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 {
 	button_value = ioread32(GPIO_PC_DIN)  ^ 0xffffffff;
-	printk(KERN_NOTICE "Value: %x\n", button_value);
+	//printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
 	if (async_queue)
@@ -126,7 +126,7 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 	
 	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
-		printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
+		//printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
 		return 3;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
