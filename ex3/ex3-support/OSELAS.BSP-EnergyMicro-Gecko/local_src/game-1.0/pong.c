@@ -123,13 +123,20 @@ void drawBoard(){
 	}
 }
 
-void playerMovement(PlayerState *player) {
-	if(player->movingUp) player->verticalPosition -= 1;
-	if(player->movingDown) player->verticalPosition += 1;
-}
-
 #define PLAYER_HEIGHT 			8
 #define PLAYER_SCREEN_OFFSET	4
+
+void playerMovement(PlayerState *player) {
+	if(player->movingUp && 
+		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
+		player->verticalPosition -= 1;
+	}
+	if(player->movingDown && 
+		player->verticalPosition < (V_SCREEN_HEIGHT - PLAYER_HEIGHT / 2)) {
+		player->verticalPosition += 1;
+	}
+}
+
 void drawPlayer(PlayerState player, color colorIn) {
 	uint32_t x0;
 	if(player.leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
