@@ -11,7 +11,7 @@ CFLAGS += -O2 -g -W -Wall -std=gnu99 #-Wsign-compare -Wfloat-equal -Wformat-secu
 #CPPFLAGS +=
 LDFLAGS += -lm
 
-OBJECTS = pong.o numbers.o
+OBJECTS = pong.o numbers.o text.o
 
 all: game
 

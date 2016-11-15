@@ -5,8 +5,8 @@
 
 typedef uint16_t color;
 
-static const uint32_t blockW = 3;
-static const uint32_t blockH = 3;
+static const uint32_t blockW = 5;
+static const uint32_t blockH = 5;
 
 static const uint16_t letters[25] = {
 	63, 36, 52, 32, 56,

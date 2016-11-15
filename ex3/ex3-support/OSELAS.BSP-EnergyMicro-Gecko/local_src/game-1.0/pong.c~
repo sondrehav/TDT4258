@@ -32,6 +32,7 @@ typedef struct Ball
 void drawBoard();
 void enterGameLoop();
 void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer);
+void drawWinner(uint32_t x, uint32_t y, color numColor, FILE* framebuffer);
 
 Ball ball;
 PlayerState leftPlayer;
@@ -147,7 +148,7 @@ void drawMovement(PlayerState* player, color colorIn) {
 	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
-	drawRectangle(x0, y0, x1, y0 +5, colorIn);
+	drawRectangle(x0, y0-5, x1, y0, colorIn);
 	drawRectangle(x0, y1, x1, y1 +5, colorIn);
 }
 
@@ -204,16 +205,23 @@ void redrawNumber(){
 }
 
 void resetScore(){
+	if (playerRightScore > playerLeftScore) drawWinner(130,50,whiteColor,framebuffer);
+	else drawWinner(50,50,whiteColor,framebuffer);
+	sleep(5);
 	playerRightScore = 0;
 	playerLeftScore = 0;
+	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
+	drawBoard();
+	
 }
 
 void reset() {
 
-	struct timespec t_now;
+	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
-
+	
+	
 	drawPlayer(&leftPlayer, blackColor);
 	drawPlayer(&rightPlayer, blackColor);
 	
