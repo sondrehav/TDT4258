@@ -20,10 +20,19 @@ typedef struct PlayerState
 	uint32_t verticalPosition;
 } PlayerState;
 
+typedef struct Ball
+{
+	uint32_t x;
+	uint32_t y;
+	uint32_t lastX;
+	uint32_t lastY;
+} Ball;
+
 void drawBoard();
 void enterGameLoop();
 void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer);
 
+Ball ball;
 PlayerState leftPlayer;
 PlayerState rightPlayer;
 
@@ -151,14 +160,53 @@ void drawPlayer(PlayerState player, color colorIn) {
 	drawRectangle(x0, y0, x1, y1, colorIn);
 }
 
+void ballMovement() {
+	ball.x = ball.x + ball.x - ball.lastX;
+	ball.y = ball.y + ball.y - ball.lastY;
+}
+
+void gameLogic() {
+	if(ball.y <= 0) {
+		ball.y = 1;
+		ball.lastY = 0;
+	} else if(ball.y >= V_SCREEN_HEIGHT - 1) {
+		ball.y = V_SCREEN_HEIGHT - 2;
+		ball.lastY = V_SCREEN_HEIGHT - 1;
+	}
+	if(ball.x <= 0) {
+		ball.x = 1;
+		ball.lastX = 0;
+	} else if(ball.x >= V_SCREEN_WIDTH - 1) {
+		ball.x = V_SCREEN_WIDTH - 2;
+		ball.lastX = V_SCREEN_WIDTH - 1;
+	}
+
+}
+
+void drawBall(color c) {
+	uint32_t x0 = ball.x;
+	uint32_t x1 = x0 + 1;
+	uint32_t y0 = ball.y
+	uint32_t y1 = y0 + 1;
+	toScreenSpace(&x0, &y0, &x1, &y1);
+	drawRectangle(x0, y0, x1, y1, c);
+}
+
+
 void enterGameLoop() {
 
 	color white = createColor(255, 255, 255);
 	color black = createColor(0,0,0);
+	
 	leftPlayer.leftBoardPosition = true;
 	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
 	rightPlayer.leftBoardPosition = false;
 	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+
+	ball.x = V_SCREEN_WIDTH / 2;
+	ball.y = V_SCREEN_HEIGHT / 2;
+	ball.lastX = V_SCREEN_WIDTH / 2 - 1;
+	ball.lastY = V_SCREEN_HEIGHT / 2 - 1;
 
 	struct timespec start;
 	struct timespec now;
@@ -173,11 +221,13 @@ void enterGameLoop() {
 		drawPlayer(rightPlayer, black);
 		playerMovement(&leftPlayer);
 		playerMovement(&rightPlayer);
+		drawBall(black);
 
-		// gamelogic goes here
+		gameLogic();
 
 		drawPlayer(leftPlayer, white);
 		drawPlayer(rightPlayer, white);
+		drawBall(white);
 		
 		clock_gettime(CLOCK_MONOTONIC, &now);
 		
