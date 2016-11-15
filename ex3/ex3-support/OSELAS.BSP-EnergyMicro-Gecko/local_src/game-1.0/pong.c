@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include "pong.h"
+#include <time.h>
 
 FILE* framebuffer;
 
@@ -156,7 +157,16 @@ void enterGameLoop() {
 	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
 	rightPlayer.leftBoardPosition = false;
 	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+
+	struct timespec start;
+	struct timespec now;
+
+	uint32_t frameTimeNanoSec = 16666666;
+
 	while(true) {
+
+		clock_gettime(CLOCK_MONOTONIC, &start);
+
 		drawPlayer(leftPlayer, black);
 		drawPlayer(rightPlayer, black);
 		playerMovement(&leftPlayer);
@@ -166,6 +176,13 @@ void enterGameLoop() {
 
 		drawPlayer(leftPlayer, white);
 		drawPlayer(rightPlayer, white);
-		sleep(1);
+		
+		clock_gettime(CLOCK_MONOTONIC, &now);
+
+		now.tv_sec = 0
+		now.tv_nsec = frameTimeNanoSec - now.tv_nsec;
+
+		while(nanosleep(&now, &now) < 0);
+
 	}
 }
