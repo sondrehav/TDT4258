@@ -123,51 +123,35 @@ void drawBoard(){
 #define PLAYER_HEIGHT 			8
 #define PLAYER_SCREEN_OFFSET	4
 
-void playerMovement(PlayerState *player) {
-	if(player->movingUp && 
-		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
-		player->verticalPosition -= 1;
-	}
-	if(player->movingDown && 
-		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
-		player->verticalPosition += 1;
-	}
-}
 
-void drawPlayer(PlayerState player) {
-	color white = createColor(255, 255, 255);
-	color black = createColor(0, 0, 0);
-
+void drawPlayer(PlayerState player, color colorIn) {
 	uint32_t x0;
 	if(player.leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
 	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
-
 	uint32_t x1 = x0 + 1;
-	{
-		uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2;
-		uint32_t y1 = y0 + 1;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, white);
+	uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2;
+	uint32_t y1 = player.verticalPosition + PLAYER_HEIGHT / 2;
+	toScreenSpace(&x0, &y0, &x1, &y1);
+	drawRectangle(x0, y0, x1, y1, colorIn);
+}
+
+void playerMovement(PlayerState *player) {
+	color black = createColor(0,0,0);
+	color white = createColor(255, 255, 255);
+	if(player->movingUp && 
+		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
+		drawPlayer(player, black);
+		player->verticalPosition -= 1;
+		drawPlayer(player, white);
 	}
-	{
-		uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2 - 1;
-		uint32_t y1 = y0 + 1;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, black);
-	}
-	{
-		uint32_t y0 = player.verticalPosition + PLAYER_HEIGHT / 2 - 1;
-		uint32_t y1 = y0 + 1;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, white);
-	}
-	{
-		uint32_t y0 = player.verticalPosition + PLAYER_HEIGHT / 2;
-		uint32_t y1 = y0 + 1;
-		toScreenSpace(&x0, &y0, &x1, &y1);
-		drawRectangle(x0, y0, x1, y1, black);
+	if(player->movingDown && 
+		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
+		drawPlayer(player, black);
+		player->verticalPosition += 1;
+		drawPlayer(player, white);
 	}
 }
+
 
 void ballMovement() {
 	uint32_t x = ball.x;
@@ -291,8 +275,6 @@ void enterGameLoop() {
 
 		gameLogic();
 
-		drawPlayer(leftPlayer);
-		drawPlayer(rightPlayer);
 		drawBall(white);
 		
 		clock_gettime(CLOCK_MONOTONIC, &now);
