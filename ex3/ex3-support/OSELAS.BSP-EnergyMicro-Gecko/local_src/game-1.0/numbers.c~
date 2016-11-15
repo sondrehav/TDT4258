@@ -13,7 +13,7 @@ static const uint16_t numbers[15] = {
 	 883, 1026,  925,
 	 893, 2046,  893,
 	 453,    2,  889,
-	1007, 1903,  895
+	1007, 1903,  863
 };
 
 void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer)

@@ -22,6 +22,7 @@ typedef struct PlayerState
 
 void drawBoard();
 void enterGameLoop();
+void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer);
 
 PlayerState leftPlayer;
 PlayerState rightPlayer;
@@ -54,6 +55,7 @@ void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, createColor(0,0,0));
 	drawBoard();
+	drawNumber(40,40, 0xffff, 2, framebuffer);
 	enterGameLoop();
 }
 
@@ -133,7 +135,7 @@ void playerMovement(PlayerState *player) {
 		player->verticalPosition -= 1;
 	}
 	if(player->movingDown && 
-		player->verticalPosition < (V_SCREEN_HEIGHT - PLAYER_HEIGHT / 2)) {
+		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
 		player->verticalPosition += 1;
 	}
 }
@@ -161,7 +163,7 @@ void enterGameLoop() {
 	struct timespec start;
 	struct timespec now;
 
-	uint32_t frameTimeNanoSec = 16666666;
+	uint32_t frameTimeNanoSec = 50000000;
 
 	while(true) {
 
@@ -178,9 +180,13 @@ void enterGameLoop() {
 		drawPlayer(rightPlayer, white);
 		
 		clock_gettime(CLOCK_MONOTONIC, &now);
-
-		now.tv_sec = 0
-		now.tv_nsec = frameTimeNanoSec - now.tv_nsec;
+		
+		time_t secDiff = now.tv_sec - start.tv_sec;
+		
+		long remainingTime = frameTimeNanoSec - now.tv_sec + start.tv_sec - (secDiff * 1000000000);
+		if (remainingTime < 0) remainingTime =0;
+		now.tv_sec = 0;
+		now.tv_nsec = remainingTime;
 
 		while(nanosleep(&now, &now) < 0);
 

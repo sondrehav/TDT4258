@@ -9,3 +9,5 @@ void onKeyDown(uint32_t key);
 
 void onKeyUp(uint32_t key);
 
+void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* framebuffer);
+
