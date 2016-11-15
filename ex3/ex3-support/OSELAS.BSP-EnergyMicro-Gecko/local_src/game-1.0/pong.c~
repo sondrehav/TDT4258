@@ -205,7 +205,7 @@ void redrawNumber(){
 }
 
 void resetScore(){
-	if (playerRightScore > playerLeftScore) drawWinner(130,50,whiteColor,framebuffer);
+	if (playerRightScore > playerLeftScore) drawWinner(180,50,whiteColor,framebuffer);
 	else drawWinner(50,50,whiteColor,framebuffer);
 	sleep(5);
 	playerRightScore = 0;

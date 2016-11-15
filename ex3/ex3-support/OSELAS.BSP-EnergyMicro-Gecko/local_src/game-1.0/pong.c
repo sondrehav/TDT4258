@@ -76,15 +76,15 @@ void enterGame(FILE* framebufferDriver) {
 
 void onKeyDown(uint32_t key) {
 	printf("%d\n",key);
-	if(key == 1) leftPlayer.movingUp = true;
-	else if(key == 3) leftPlayer.movingDown = true;
+	if(key == 4) leftPlayer.movingUp = true;
+	else if(key == 6) leftPlayer.movingDown = true;
 	else if(key == 5) rightPlayer.movingUp = true;
 	else if(key == 7) rightPlayer.movingDown = true;
 }
 
 void onKeyUp(uint32_t key) {
-	if(key == 1) leftPlayer.movingUp = false;
-	else if(key == 3) leftPlayer.movingDown = false;
+	if(key == 4) leftPlayer.movingUp = false;
+	else if(key == 6) leftPlayer.movingDown = false;
 	else if(key == 5) rightPlayer.movingUp = false;
 	else if(key == 7) rightPlayer.movingDown = false;
 }
