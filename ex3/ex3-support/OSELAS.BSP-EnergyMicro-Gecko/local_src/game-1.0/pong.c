@@ -164,8 +164,8 @@ void ballMovement() {
 
 void ballPlayerTest(PlayerState* player) {
 	uint32_t x_player;
-	if(player->leftBoardPosition) x_player = PLAYER_SCREEN_OFFSET;
-	else x_player = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
+	if(player->leftBoardPosition) x_player = PLAYER_SCREEN_OFFSET + 1;
+	else x_player = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 2;
 	if(ball.x == x_player) {
 		uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 		uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
@@ -197,6 +197,10 @@ void resetScore(){
 
 void reset() {
 
+	struct timespec t_now;
+	clock_gettime(CLOCK_MONOTONIC, &start);
+	uint32_t rand = start.tv_nsec % 4;
+
 	color white = createColor(255, 255, 255);
 	color black = createColor(0,0,0);
 	
@@ -210,8 +214,8 @@ void reset() {
 
 	ball.x = V_SCREEN_WIDTH / 2;
 	ball.y = V_SCREEN_HEIGHT / 2;
-	ball.lastX = V_SCREEN_WIDTH / 2 - 1;
-	ball.lastY = V_SCREEN_HEIGHT / 2 - 1;
+	ball.lastX = V_SCREEN_WIDTH / 2 + (2 * ((rand / 2)) - 1);
+	ball.lastY = V_SCREEN_HEIGHT / 2 + (2 * ((rand % 2)) - 1);
 
 	drawPlayer(&leftPlayer, white);
 	drawPlayer(&rightPlayer, white);
