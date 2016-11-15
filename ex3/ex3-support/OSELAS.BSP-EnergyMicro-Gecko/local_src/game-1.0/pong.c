@@ -124,13 +124,13 @@ void drawBoard(){
 #define PLAYER_SCREEN_OFFSET	4
 
 
-void drawPlayer(PlayerState player, color colorIn) {
+void drawPlayer(PlayerState* player, color colorIn) {
 	uint32_t x0;
-	if(player.leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
+	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
 	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
 	uint32_t x1 = x0 + 1;
-	uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2;
-	uint32_t y1 = player.verticalPosition + PLAYER_HEIGHT / 2;
+	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
+	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
 	drawRectangle(x0, y0, x1, y1, colorIn);
 }
@@ -196,6 +196,12 @@ void resetScore(){
 }
 
 void reset() {
+
+	color white = createColor(255, 255, 255);
+	color black = createColor(0,0,0);
+	
+	drawPlayer(&leftPlayer, black);
+	drawPlayer(&rightPlayer, black);
 	
 	leftPlayer.leftBoardPosition = true;
 	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
@@ -206,6 +212,9 @@ void reset() {
 	ball.y = V_SCREEN_HEIGHT / 2;
 	ball.lastX = V_SCREEN_WIDTH / 2 - 1;
 	ball.lastY = V_SCREEN_HEIGHT / 2 - 1;
+
+	drawPlayer(&leftPlayer, white);
+	drawPlayer(&rightPlayer, white);
 
 	if(playerLeftScore > 9 || playerRightScore > 9) {
 		resetScore();
