@@ -1,4 +1,4 @@
-
+#include <stdbool.h>
 #include "pong.h"
 
 FILE* framebuffer;
@@ -11,7 +11,19 @@ typedef uint16_t color;
 #define SCREEN_WIDTH 	320
 #define SCREEN_HEIGHT 	240
 
+typedef struct PlayerState
+{
+	bool movingUp;
+	bool movingDown;
+	bool leftBoardPosition;
+	uint32_t verticalPosition;
+} PlayerState;
+
 void drawBoard();
+void enterGameLoop();
+
+PlayerState leftPlayer;
+PlayerState rightPlayer;
 
 static color createColor(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -27,7 +39,7 @@ static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, co
 
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
 	for(uint32_t y = y0; y < y1; y++) {
-		fseek(framebuffer, sizeof(color) * (320 * y + x0), SEEK_SET);
+		fseek(framebuffer, sizeof(color) * (SCREEN_WIDTH * y + x0), SEEK_SET);
 		for(uint32_t x = x0; x < x1; x++) {
 			colorArray[x - x0] = col;
 		}
@@ -39,19 +51,23 @@ static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, co
 
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
-	drawRectangle(0,0,320,240, createColor(0,0,0));
+	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, createColor(0,0,0));
 	drawBoard();
-	for (int j=0; j<30; j++){
-		sleep(1);
-	}
+	enterGameLoop();
 }
 
 void onKeyDown(uint32_t key) {
-	drawRectangle(key * 20, key * 20, (key + 1) * 20, (key + 1) * 20, createColor(127, 127, 255));
+	if(key == 1) leftPlayer.movingUp = true;
+	else if(key == 3) leftPlayer.movingDown = true;
+	else if(key == 5) rightPlayer.movingUp = true;
+	else if(key == 7) rightPlayer.movingDown = true;
 }
 
 void onKeyUp(uint32_t key) {
-	drawRectangle(key * 20, key * 20, (key + 1) * 20, (key + 1) * 20, createColor(0, 0, 0));
+	if(key == 1) leftPlayer.movingUp = false;
+	else if(key == 3) leftPlayer.movingDown = false;
+	else if(key == 5) rightPlayer.movingUp = false;
+	else if(key == 7) rightPlayer.movingDown = false;
 }
 
 void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
@@ -103,5 +119,41 @@ void drawBoard(){
 		uint32_t y1 = V_SCREEN_HEIGHT;
 		toScreenSpace(&x0, &y0, &x1, &y1);
 		drawRectangle(x0, y0, x1, y1, color);
+	}
+}
+
+void playerMovement(PlayerState player) {
+	if(player.movingUp) player.verticalPosition += 1;
+	if(player.movingDown) player.verticalPosition -= 1;
+}
+
+#define PLAYER_HEIGHT 			8
+#define PLAYER_SCREEN_OFFSET	4
+void drawPlayer(PlayerState player) {
+	color color = createColor(255, 255, 255);
+	uint32_t x0;
+	if(player.leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
+	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
+	uint32_t x1 = x0 + 1;
+	uint32_t y0 = player.verticalPosition - PLAYER_HEIGHT / 2;
+	uint32_t y1 = player.verticalPosition + PLAYER_HEIGHT / 2;
+	toScreenSpace(&x0, &y0, &x1, &y1);
+	drawRectangle(x0, y0, x1, y1, color);
+}
+
+void enterGameLoop() {
+	leftPlayer.leftBoardPosition = true;
+	leftPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+	rightPlayer.leftBoardPosition = false;
+	rightPlayer.verticalPosition = V_SCREEN_HEIGHT / 2;
+	while(true) {
+		playerMovement(leftPlayer);
+		playerMovement(rightPlayer);
+
+		// gamelogic goes here
+
+		drawPlayer(leftPlayer);
+		drawPlayer(rightPlayer);
+		sleep(1);
 	}
 }
