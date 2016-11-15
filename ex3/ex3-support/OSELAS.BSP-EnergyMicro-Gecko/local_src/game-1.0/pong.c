@@ -139,16 +139,28 @@ void drawPlayer(PlayerState* player, color colorIn) {
 	drawRectangle(x0, y0, x1, y1, colorIn);
 }
 
+void drawMovement(PlayerState* player, color colorIn) {
+	uint32_t x0;
+	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
+	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
+	uint32_t x1 = x0 + 1;
+	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
+	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
+	toScreenSpace(&x0, &y0, &x1, &y1);
+	drawRectangle(x0, y0, x1, y0 +5, colorIn);
+	drawRectangle(x0, y1, x1, y1 +5, colorIn);
+}
+
 void playerMovement(PlayerState *player) {
 	if(player->movingUp && 
 		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
-		drawPlayer(player, blackColor);
+		drawMovement(player, blackColor);
 		player->verticalPosition -= 1;
 		drawPlayer(player, whiteColor);
 	}
 	if(player->movingDown && 
 		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
-		drawPlayer(player, blackColor);
+		drawMovement(player, blackColor);
 		player->verticalPosition += 1;
 		drawPlayer(player, whiteColor);
 	}
@@ -198,7 +210,7 @@ void resetScore(){
 
 void reset() {
 
-	struct timespec t_now;
+	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
 
