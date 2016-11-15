@@ -23,16 +23,6 @@ void drawNumber(uint32_t x, uint32_t y, color numColor, uint16_t num, FILE* fram
 	if (num <= 10) shiftAmount = num;
 	else shiftAmount = 10;
 	
-	/*
-	uint16_t mask = 1;
-	for (uint32_t j = 0; j < 3; j++) {
-		for (uint32_t i = 0; i < 5; i++) {
-			color tmpColor = numColor * ((numbers[i*3+j] >> shiftAmount) & mask);
-			drawRectangle(x+j*blockW, y+i*blockH, x+j*blockW+blockW, y+i*blockH+blockH, tmpColor framebuffer);
-		}
-	}
-	*/
-	
 	color colorArray[3*blockW];
 	for (uint32_t i = 0; i < 5; i++) {
 		for (uint32_t k = 0; k < blockH; k++) {
