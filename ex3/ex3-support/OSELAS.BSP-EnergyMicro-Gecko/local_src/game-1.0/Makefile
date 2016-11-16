@@ -23,6 +23,9 @@ clean:
 
 install:
 
+pretty :
+	-indent *.c *.h
+
 
 .PHONY: all install clean
 

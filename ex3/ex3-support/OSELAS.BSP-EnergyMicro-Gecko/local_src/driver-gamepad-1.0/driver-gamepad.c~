@@ -37,10 +37,10 @@ struct class *cl;
 struct fasync_struct* async_queue;
 struct resource* res;
 
+// Setting up module
 static int __init template_init(void)
 {
 	// Initialization
-	printk("Hello World, here is your module speaking\n");
 	alloc_chrdev_region(&dev, 0, 1, "GamepadDriver");
 	cdev_init(&gpad_cdev, &gpad_fops);
 	int err = cdev_add(&gpad_cdev, dev, 1);

@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 {
 	handling = 0;
 	int oflags;
-	printf("Hello World, I'm game!\n");
 	
 	// Open drivers
 	gamepadDriver = fopen("dev/GamepadDriver", "r");
