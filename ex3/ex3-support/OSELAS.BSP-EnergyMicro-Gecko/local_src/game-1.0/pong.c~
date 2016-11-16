@@ -42,7 +42,7 @@ FILE* framebuffer;
 static const color whiteColor = 0xffffffff;
 static const color blackColor = 0x00000000;
 
-
+// Method for drawing rectangles on the screen
 static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color col) {
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
 	for(uint32_t y = y0; y < y1; y++) {
@@ -64,19 +64,20 @@ void enterGame(FILE* framebufferDriver) {
 	enterGameLoop();
 }
 
+// Check which button was pressed down
 void onKeyDown(uint32_t key) {
-	printf("%d\n",key);
-	if((key & 2) == 2) leftPlayer.movingUp = true;
-	else if((key & 8) == 8) leftPlayer.movingDown = true;
-	else if((key & 32) == 32) rightPlayer.movingUp = true;
-	else if((key & 128) == 128) rightPlayer.movingDown = true;
+	if((key & 2) == 2) leftPlayer.movingUp = true; // SW2
+	else if((key & 8) == 8) leftPlayer.movingDown = true; // SW4
+	else if((key & 32) == 32) rightPlayer.movingUp = true; // SW6
+	else if((key & 128) == 128) rightPlayer.movingDown = true; // SW8
 }
 
+// Check which button was realeased
 void onKeyUp(uint32_t key) {
-	if((key & 2) == 2) leftPlayer.movingUp = false;
-	else if((key & 8) == 8) leftPlayer.movingDown = false;
-	else if((key & 32) == 32) rightPlayer.movingUp = false;
-	else if((key & 128) == 128) rightPlayer.movingDown = false;
+	if((key & 2) == 2) leftPlayer.movingUp = false; // SW2
+	else if((key & 8) == 8) leftPlayer.movingDown = false; // SW4
+	else if((key & 32) == 32) rightPlayer.movingUp = false; // SW6
+	else if((key & 128) == 128) rightPlayer.movingDown = false; // SW8
 }
 
 void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
@@ -86,8 +87,8 @@ void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
 	*(y1) = *(y1) * SCREEN_HEIGHT / V_SCREEN_HEIGHT;
 }
 
+// Draw borderlines and midline on screen
 void drawBoard(){
-	
 	{ // mid line
 		uint32_t mid = V_SCREEN_WIDTH / 2;
 		uint32_t x0 = mid;
@@ -118,7 +119,7 @@ void drawBoard(){
 #define PLAYER_HEIGHT 			8
 #define PLAYER_SCREEN_OFFSET	4
 
-
+// Draw the player plate
 void drawPlayer(PlayerState* player, color colorIn) {
 	uint32_t x0;
 	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
@@ -142,6 +143,7 @@ void clearMovement(PlayerState* player, color colorIn) {
 	drawRectangle(x0, y0, x1, y0+ PIXEL_DIM , colorIn);
 	drawRectangle(x0, y1-PIXEL_DIM , x1, y1, colorIn);
 }
+
 
 void playerMovement(PlayerState *player) {
 	if(player->movingUp && 
@@ -198,9 +200,10 @@ void redrawNumber(){
 
 // Resets game after game won
 void resetGame(){
+	// Draw winner on winning side
 	if (playerRightScore > playerLeftScore) drawWinner(180,50,whiteColor,framebuffer);
 	else drawWinner(50,50,whiteColor,framebuffer);
-	sleep(5);
+	sleep(5); // Sleep 5 seconds before new game begins
 	playerRightScore = 0;
 	playerLeftScore = 0;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
@@ -215,7 +218,6 @@ void reset() {
 	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
-	
 	
 	drawPlayer(&leftPlayer, blackColor);
 	drawPlayer(&rightPlayer, blackColor);
@@ -281,7 +283,7 @@ void enterGameLoop() {
 	struct timespec start;
 	struct timespec now;
 
-	uint32_t frameTimeNanoSec = 50000000;
+	uint32_t frameTimeNanoSec = 50000000; // 20 fps
 
 	while(true) {
 

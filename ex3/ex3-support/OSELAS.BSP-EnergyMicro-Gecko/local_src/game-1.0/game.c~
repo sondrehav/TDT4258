@@ -19,11 +19,15 @@ int main(int argc, char *argv[])
 	handling = 0;
 	int oflags;
 	printf("Hello World, I'm game!\n");
+	
+	// Open drivers
 	gamepadDriver = fopen("dev/GamepadDriver", "r");
 	framebufferDriver = fopen("dev/fb0", "rb+");
+	
+	// Register and setting up signal handler
 	if (signal(SIGIO, &input_handler)== SIG_ERR){
 		printf("ERROR1 \n");
-	} /* dummy sample; sigaction() is better */ 
+	}
 	if(fcntl(fileno(gamepadDriver), F_SETOWN, getpid()) == -1){
 		printf("ERROR2 \n");
 	}
@@ -39,6 +43,7 @@ int main(int argc, char *argv[])
 	enterGame(framebufferDriver);
 	printf("Game done");
 	
+	// close drivers
 	fclose(gamepadDriver);
 	fclose(framebufferDriver);
 	exit(EXIT_SUCCESS);
@@ -52,7 +57,7 @@ void input_handler(){
 	fgets(&button_value, 4, gamepadDriver);
 
 	button_value = 0xffffffff ^ button_value;
-
+	
 	onKeyDown((last_button_value ^ button_value) & button_value);
 	onKeyUp((last_button_value ^ button_value) & last_button_value);
 
