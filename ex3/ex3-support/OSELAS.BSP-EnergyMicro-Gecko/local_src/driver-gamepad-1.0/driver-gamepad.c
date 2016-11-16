@@ -54,14 +54,14 @@ static int __init template_init(void)
 
 	
 	// Request memory regions
-	res = request_mem_region(GPIO_PC_BASE, 0x24, "GamepadDriver");
+	res = request_mem_region(GPIO_PC_BASE, 0x24, "GamepadDriver"); // 0x24 = size of GPIO_PC adresses
 	if(res == NULL) {
 		printk(KERN_ERR "request_mem_region returned null.");
 		return -1;
 	}
 	ioremap_nocache(res->start, 0x24);
 	
-	res = request_mem_region(GPIO_EXTIPSELL, 0x12, "GamepadDriver");
+	res = request_mem_region(GPIO_EXTIPSELL, 0x12, "GamepadDriver");// 0x12 = size of memory from GPIO_EXTIPSELL to GPIO_IFC 
 	if(res == NULL) {
 		printk(KERN_ERR "request_mem_region returned null.");
 		return -1;
@@ -133,13 +133,7 @@ static int gpad_fasync(int fd, struct file *filep, int on){
 	return fasync_helper(fd, filep, on, &async_queue);
 }
 
-/*
- * template_cleanup - function to cleanup this module from kernel space
- *
- * This is the second of two exported functions to handle cleanup this
- * code from a running kernel
- */
-
+//template_cleanup - function to cleanup this module from kernel space
 static void __exit template_cleanup(void)
 {
 	free_irq(18, NULL);

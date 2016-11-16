@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 	exit(EXIT_SUCCESS);
 }
 
+// Signal handler reads buttonvalue from driver
 void input_handler(){
 
 	if(handling == 1) return;

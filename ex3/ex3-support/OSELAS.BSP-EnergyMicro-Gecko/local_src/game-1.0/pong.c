@@ -216,7 +216,6 @@ void reset() {
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
 	
-	
 	drawPlayer(&leftPlayer, blackColor);
 	drawPlayer(&rightPlayer, blackColor);
 	
