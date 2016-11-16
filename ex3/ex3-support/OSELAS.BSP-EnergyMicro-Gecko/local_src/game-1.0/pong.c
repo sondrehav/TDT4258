@@ -10,6 +10,7 @@ typedef uint16_t color;
 #define SCREEN_WIDTH 	320
 #define SCREEN_HEIGHT 	240
 
+// representing a single player
 typedef struct PlayerState
 {
   bool movingUp;
@@ -18,6 +19,7 @@ typedef struct PlayerState
   uint32_t verticalPosition;
 } PlayerState;
 
+// representing the ball
 typedef struct Ball
 {
   uint32_t x;
@@ -99,6 +101,7 @@ onKeyUp (uint32_t key)
     rightPlayer.movingDown = false;	// SW8
 }
 
+// translates our 64 x 48 pixel values into screen space (320 x 240)
 void
 toScreenSpace (uint32_t * x0, uint32_t * y0, uint32_t * x1, uint32_t * y1)
 {
@@ -175,7 +178,7 @@ clearMovement (PlayerState * player, color colorIn)
   drawRectangle (x0, y1 - PIXEL_DIM, x1, y1, colorIn);
 }
 
-
+// updates the player position based on the currently pressed keys
 void
 playerMovement (PlayerState * player)
 {
@@ -194,6 +197,7 @@ playerMovement (PlayerState * player)
     }
 }
 
+// moves the ball based on it's last position
 void
 ballMovement ()
 {
@@ -209,12 +213,12 @@ ballMovement ()
 void
 ballPlayerTest (PlayerState * player)
 {
-  uint32_t x_player;
+  uint32_t xPlayer;
   if (player->leftBoardPosition)
-    x_player = PLAYER_SCREEN_OFFSET + 1;
+    xPlayer = PLAYER_SCREEN_OFFSET + 1;
   else
-    x_player = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 2;
-  if (ball.x == x_player)
+    xPlayer = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 2;
+  if (ball.x == xPlayer)
     {
       uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
       uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
@@ -295,8 +299,9 @@ reset ()
 
 }
 
+// checks if the ball is hitting the boundaries or is going outside on the left or right side.
 void
-gameLogic ()
+boundaryTest ()
 {
   if (ball.y <= 0)
     {
@@ -323,6 +328,7 @@ gameLogic ()
 
 }
 
+// draws the ball
 void
 drawBall (color c)
 {
@@ -336,7 +342,7 @@ drawBall (color c)
   drawRectangle (x0, y0, x1, y1, c);
 }
 
-
+// the actual gameloop. Includes initialization.
 void
 enterGameLoop ()
 {
@@ -366,7 +372,7 @@ enterGameLoop ()
       ballPlayerTest (&leftPlayer);
       ballPlayerTest (&rightPlayer);
 
-      gameLogic ();
+      boundaryTest ();
 
       drawBall (whiteColor);
 
@@ -376,14 +382,11 @@ enterGameLoop ()
 
       long remainingTime =
 	frameTimeNanoSec - now.tv_sec + start.tv_sec - (secDiff * 1000000000);
-      if (remainingTime < 0)
-	{
-	  printf ("Max frame time!\n");
-	  remainingTime = 0;
-	}
+
       now.tv_sec = 0;
       now.tv_nsec = remainingTime;
 
+      // this sleeps while there is remaining time to sleep.
       while (nanosleep (&now, &now) < 0);
 
     }
