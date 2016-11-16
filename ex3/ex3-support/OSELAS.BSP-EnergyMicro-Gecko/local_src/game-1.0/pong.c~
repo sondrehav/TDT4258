@@ -237,9 +237,9 @@ ballPlayerTest (PlayerState * player)
 void
 redrawNumber ()
 {
-  int leftX = 27;
-  int rightX = 34;
-  int y = 7;
+  uint32_t leftX = 27;
+  uint32_t rightX = 34;
+  uint32_t y = 7;
   toScreenSpace (&leftX, &rightX, &y, &y);	// TODO: Ugly code is ugly
   drawNumber (leftX, y, whiteColor, playerLeftScore, framebuffer);
   drawNumber (rightX, y, whiteColor, playerRightScore, framebuffer);
