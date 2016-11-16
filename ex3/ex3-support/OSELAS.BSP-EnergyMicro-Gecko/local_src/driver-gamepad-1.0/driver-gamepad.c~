@@ -88,7 +88,7 @@ static int __init template_init(void)
 	iowrite32(0xff, GPIO_EXTIRISE);
 	iowrite32(0xff, GPIO_IEN);
 	iowrite32(0xff, GPIO_IFC);
-	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
+	//request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
 	return 0;
@@ -125,6 +125,7 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 
 	//printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
 	button_value = ioread32(GPIO_PC_DIN)  ^ 0xffffffff;
+	printk(KERN_INFO "buttonvalue:  %x \n", button_value);
 	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
 		//printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);

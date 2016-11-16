@@ -76,17 +76,17 @@ void enterGame(FILE* framebufferDriver) {
 
 void onKeyDown(uint32_t key) {
 	printf("%d\n",key);
-	if(key == 4) leftPlayer.movingUp = true;
-	else if(key == 6) leftPlayer.movingDown = true;
-	else if(key == 5) rightPlayer.movingUp = true;
-	else if(key == 7) rightPlayer.movingDown = true;
+	if(key == 0) leftPlayer.movingUp = true;
+	else if(key == 2) leftPlayer.movingDown = true;
+	else if(key == 4) rightPlayer.movingUp = true;
+	else if(key == 6) rightPlayer.movingDown = true;
 }
 
 void onKeyUp(uint32_t key) {
-	if(key == 4) leftPlayer.movingUp = false;
-	else if(key == 6) leftPlayer.movingDown = false;
-	else if(key == 5) rightPlayer.movingUp = false;
-	else if(key == 7) rightPlayer.movingDown = false;
+	if(key == 0) leftPlayer.movingUp = false;
+	else if(key == 2) leftPlayer.movingDown = false;
+	else if(key == 4) rightPlayer.movingUp = false;
+	else if(key == 6) rightPlayer.movingDown = false;
 }
 
 void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
@@ -148,8 +148,8 @@ void drawMovement(PlayerState* player, color colorIn) {
 	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
-	drawRectangle(x0, y0-5, x1, y0, colorIn);
-	drawRectangle(x0, y1, x1, y1 +5, colorIn);
+	drawRectangle(x0, y0, x1, y0+5, colorIn);
+	drawRectangle(x0, y1 -5, x1, y1, colorIn);
 }
 
 void playerMovement(PlayerState *player) {

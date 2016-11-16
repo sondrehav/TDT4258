@@ -46,16 +46,18 @@ int main(int argc, char *argv[])
 void input_handler(){
 	int t = (int) fgets(&button_value, 4, gamepadDriver);
 	int i = 0;
-	printf("%d %d \n",button_value ,t);
+	printf("%x \n",button_value);
 	while(i < 8) {
 		uint32_t mask = (0x1 << i);
 		if(((button_value & mask) == mask) && ((last_button_value & mask) != mask)){
 			onKeyDown(i);
 			printf("Key down\n");
+			return;
 		}
 		if(((button_value & mask) != mask) && ((last_button_value & mask) == mask)){
 			onKeyUp(i);
 			printf("Key up\n");
+			return;
 		}
 		i++;
 	}

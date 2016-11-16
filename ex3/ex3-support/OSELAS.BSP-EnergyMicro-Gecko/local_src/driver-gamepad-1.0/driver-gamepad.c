@@ -89,7 +89,7 @@ static int __init template_init(void)
 	iowrite32(0xff, GPIO_IEN);
 	iowrite32(0xff, GPIO_IFC);
 	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
-	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
+	//request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
 	return 0;
 }
