@@ -49,6 +49,7 @@ struct fasync_struct* async_queue;
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs);
 
 struct resource* res;
+static uint32_t handle;
 
 static int __init template_init(void)
 {
@@ -91,18 +92,23 @@ static int __init template_init(void)
 	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
+	handle = 0;
+
 	return 0;
 }
+
 static uint32_t button_value;
 
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 {
-	button_value = ioread32(GPIO_PC_DIN)  ^ 0xffffffff;
+	if(handle == 1) return IRQ_HANDLED;
+	handle = 1;
 	//printk(KERN_NOTICE "Value: %x\n", button_value);
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
-	if (async_queue)
+	if (async_queue){
 		kill_fasync(&async_queue, SIGIO, POLL_IN);
+	}
 	return IRQ_HANDLED;
 }
 
@@ -124,7 +130,9 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 
 	//printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
 	
+	button_value = ioread32(GPIO_PC_DIN);
 	int error_count = copy_to_user(buf, &button_value, 4);
+	handle = 0;
 	if(error_count == 0){
 		//printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
 		return 3;
