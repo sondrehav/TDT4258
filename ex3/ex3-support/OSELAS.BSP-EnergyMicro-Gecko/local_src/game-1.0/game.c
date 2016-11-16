@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 {
 	int oflags;
 	printf("Hello World, I'm game!\n");
-	gamepadDriver = fopen("dev/GamepadDriver", "r+w+");
+	gamepadDriver = fopen("dev/GamepadDriver", "r");
 	framebufferDriver = fopen("dev/fb0", "rb+");
 	if (signal(SIGIO, &input_handler)== SIG_ERR){
 		printf("ERROR1 \n");
@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 	}
 	
 	fprintf("Getpid: %x \n",getpid());
-	fprintf(gamepadDriver, "Test for driver!");
 	
 	last_button_value = 0;
 	
@@ -48,17 +47,9 @@ int main(int argc, char *argv[])
 
 void input_handler(){
 	int t = (int) fgets(&button_value, 4, gamepadDriver);
-	int i = 0;
-	while(i < 8) {
-		uint32_t mask = (0x1 << i);
-		if(((button_value & mask) == mask) && ((last_button_value & mask) != mask)){
-			onKeyDown(i);
-		}
-		if(((button_value & mask) != mask) && ((last_button_value & mask) == mask)){
-			onKeyUp(i);
-		}
-		i++;
-	}
+
+	onKeyDown((last_button_value ^ button_value) & button_value);
+	onKeyUp((last_button_value ^ button_value) & last_button_value);
 
 	last_button_value = button_value;
 }

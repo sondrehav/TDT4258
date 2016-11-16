@@ -76,17 +76,17 @@ void enterGame(FILE* framebufferDriver) {
 
 void onKeyDown(uint32_t key) {
 	printf("%d\n",key);
-	if(key == 1) leftPlayer.movingUp = true;
-	else if(key == 3) leftPlayer.movingDown = true;
-	else if(key == 5) rightPlayer.movingUp = true;
-	else if(key == 7) rightPlayer.movingDown = true;
+	if((key & 1) == 1) leftPlayer.movingUp = true;
+	else if((key & 4) == 4) leftPlayer.movingDown = true;
+	else if((key & 16) == 16) rightPlayer.movingUp = true;
+	else if((key & 64) == 64) rightPlayer.movingDown = true;
 }
 
 void onKeyUp(uint32_t key) {
-	if(key == 1) leftPlayer.movingUp = false;
-	else if(key == 3) leftPlayer.movingDown = false;
-	else if(key == 5) rightPlayer.movingUp = false;
-	else if(key == 7) rightPlayer.movingDown = false;
+	if((key & 1) == 1) leftPlayer.movingUp = false;
+	else if((key & 4) == 4) leftPlayer.movingDown = false;
+	else if((key & 16) == 16) rightPlayer.movingUp = false;
+	else if((key & 64) == 64) rightPlayer.movingDown = false;
 }
 
 void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
