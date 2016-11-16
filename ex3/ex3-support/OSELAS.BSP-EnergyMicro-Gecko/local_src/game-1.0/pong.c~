@@ -2,8 +2,6 @@
 #include "pong.h"
 #include <time.h>
 
-FILE* framebuffer;
-
 typedef uint16_t color;
 
 #define PIXEL_DIM 		5
@@ -37,24 +35,15 @@ void drawWinner(uint32_t x, uint32_t y, color numColor, FILE* framebuffer);
 Ball ball;
 PlayerState leftPlayer;
 PlayerState rightPlayer;
-
 uint32_t playerLeftScore;
 uint32_t playerRightScore;
-
-static color createColor(uint8_t r, uint8_t g, uint8_t b)
-{
-	color c = 0;
-	c |= (((uint16_t)r >> 3) << 11);
-	c |= (((uint16_t)g >> 2) << 5);
-	c |= (((uint16_t)b >> 3) << 0);
-	return c;
-}
+FILE* framebuffer;
 
 static const color whiteColor = 0xffffffff;
 static const color blackColor = 0x00000000;
 
+
 static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color col) {
-	
 	color* colorArray = (color*) malloc((x1 - x0) * sizeof(color));
 	for(uint32_t y = y0; y < y1; y++) {
 		fseek(framebuffer, sizeof(color) * (SCREEN_WIDTH * y + x0), SEEK_SET);
@@ -67,6 +56,7 @@ static void drawRectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, co
 
 }
 
+// Game startup, drawing board and entering game
 void enterGame(FILE* framebufferDriver) {
 	framebuffer = framebufferDriver;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
@@ -140,7 +130,8 @@ void drawPlayer(PlayerState* player, color colorIn) {
 	drawRectangle(x0, y0, x1, y1, colorIn);
 }
 
-void drawMovement(PlayerState* player, color colorIn) {
+// Clear only top and bottom of player when moving
+void clearMovement(PlayerState* player, color colorIn) {
 	uint32_t x0;
 	if(player->leftBoardPosition) x0 = PLAYER_SCREEN_OFFSET;
 	else x0 = V_SCREEN_WIDTH - PLAYER_SCREEN_OFFSET - 1;
@@ -148,25 +139,24 @@ void drawMovement(PlayerState* player, color colorIn) {
 	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
-	drawRectangle(x0, y0, x1, y0+5, colorIn);
-	drawRectangle(x0, y1-5, x1, y1, colorIn);
+	drawRectangle(x0, y0, x1, y0+ PIXEL_DIM , colorIn);
+	drawRectangle(x0, y1-PIXEL_DIM , x1, y1, colorIn);
 }
 
 void playerMovement(PlayerState *player) {
 	if(player->movingUp && 
 		player->verticalPosition > (1 + PLAYER_HEIGHT / 2)) {
-		drawMovement(player, blackColor);
+		clearMovement(player, blackColor);
 		player->verticalPosition -= 1;
 		drawPlayer(player, whiteColor);
 	}
 	if(player->movingDown && 
 		player->verticalPosition < (V_SCREEN_HEIGHT -1 - PLAYER_HEIGHT / 2)) {
-		drawMovement(player, blackColor);
+		clearMovement(player, blackColor);
 		player->verticalPosition += 1;
 		drawPlayer(player, whiteColor);
 	}
 }
-
 
 void ballMovement() {
 	uint32_t x = ball.x;
@@ -177,6 +167,7 @@ void ballMovement() {
 	ball.lastY = y;
 }
 
+// Check if ball hits player or not
 void ballPlayerTest(PlayerState* player) {
 	uint32_t x_player;
 	if(player->leftBoardPosition) x_player = PLAYER_SCREEN_OFFSET + 1;
@@ -195,6 +186,7 @@ void ballPlayerTest(PlayerState* player) {
 	}
 }
 
+// Draw score on screen
 void redrawNumber(){
 	int leftX = 27;
 	int rightX = 34;
@@ -204,7 +196,8 @@ void redrawNumber(){
 	drawNumber(rightX, y, whiteColor, playerRightScore, framebuffer);
 }
 
-void resetScore(){
+// Resets game after game won
+void resetGame(){
 	if (playerRightScore > playerLeftScore) drawWinner(180,50,whiteColor,framebuffer);
 	else drawWinner(50,50,whiteColor,framebuffer);
 	sleep(5);
@@ -212,11 +205,13 @@ void resetScore(){
 	playerLeftScore = 0;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
 	drawBoard();
+	drawPlayer(&leftPlayer, whiteColor);
+	drawPlayer(&rightPlayer, whiteColor);
 	
 }
 
+// Reset board and players after point won
 void reset() {
-
 	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	uint32_t rand = start.tv_nsec % 4;
@@ -239,7 +234,7 @@ void reset() {
 	drawPlayer(&rightPlayer, whiteColor);
 
 	if(playerLeftScore > 9 || playerRightScore > 9) {
-		resetScore();
+		resetGame();
 	}
 
 }

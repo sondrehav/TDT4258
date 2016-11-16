@@ -1,7 +1,6 @@
 /*
  * This is a demo Linux kernel module.
  */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -22,6 +21,7 @@ static int gpad_release(struct inode *inode, struct file *filep);
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp);
 static int gpad_fasync(int fd, struct file *filep, int on);
+irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs);
 
 static struct file_operations gpad_fops = {
 	.owner = 	THIS_MODULE,
@@ -34,25 +34,12 @@ static struct file_operations gpad_fops = {
 
 struct cdev gpad_cdev;
 struct class *cl;
-
 struct fasync_struct* async_queue;
-
-/*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
- */
-
-irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-
 struct resource* res;
-
 
 static int __init template_init(void)
 {
+	// Initialization
 	printk("Hello World, here is your module speaking\n");
 	alloc_chrdev_region(&dev, 0, 1, "GamepadDriver");
 	cdev_init(&gpad_cdev, &gpad_fops);
@@ -65,6 +52,8 @@ static int __init template_init(void)
 	device_create(cl, NULL, dev, NULL, "GamepadDriver");
 	printk("Initialization done.");
 
+	
+	// Request memory regions
 	res = request_mem_region(GPIO_PC_BASE, 0x24, "GamepadDriver");
 	if(res == NULL) {
 		printk(KERN_ERR "request_mem_region returned null.");
@@ -89,10 +78,8 @@ static int __init template_init(void)
 	iowrite32(0xff, GPIO_EXTIRISE);
 	iowrite32(0xff, GPIO_IEN);
 	iowrite32(0xff, GPIO_IFC);
-	request_irq(17, button_interrupt, 0,"GamepadDriver", NULL);
 	request_irq(18, button_interrupt, 0,"GamepadDriver", NULL);
 	
-
 	return 0;
 }
 
@@ -100,38 +87,34 @@ static uint32_t button_value;
 
 irqreturn_t button_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 {
-
-	//printk(KERN_NOTICE "Value: %x\n", button_value);
+	// Clear interrupt
 	uint32_t gpio_if_value = ioread32(GPIO_IF);
 	iowrite32(gpio_if_value, GPIO_IFC);
+	//Send signal to interrupt user application
 	if (async_queue){
 		kill_fasync(&async_queue, SIGIO, POLL_IN);
 	}
 	return IRQ_HANDLED;
 }
 
+// Open driverfile
 static int gpad_open(struct inode *inode, struct file *filep){
 	printk(KERN_NOTICE "Open driver!\n");
 	return 0;
 }
 
+// Close driverfile
 static int gpad_release(struct inode *inode, struct file *filep){
 	printk(KERN_NOTICE "Release driver!\n");
 	return 0;
 }
 
-static char message[256] = {0};
-static short size_of_message;
-
 // Send string to user! When program calls fgets.
 static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-
-	//printk(KERN_INFO "%x \n", *(filep->f_owner.pid));	
-	
+	// Write buttonvalue so user can read value 
 	button_value = ioread32(GPIO_PC_DIN);
 	int error_count = copy_to_user(buf, &button_value, 4);
 	if(error_count == 0){
-		//printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", 4);
 		return 3;
 	} else {
 		printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
@@ -142,23 +125,11 @@ static ssize_t gpad_read(struct file *filep, char __user *buf, size_t count, lof
 
 // User sends to driver. When program calls fprintf.
 static ssize_t gpad_write(struct file *filep, char __user *buf, size_t count, loff_t *offsetp){
-	printk(KERN_NOTICE "Write driver!\n");
-	printk(KERN_NOTICE "Driver: %s\n", buf);
-	int i = 0;
-	while(i<256) {
-		message[i] = buf[i];
-		if(buf[i] == '\0') {
-			size_of_message = i;
-			return size_of_message;
-		}
-		i++;
-	}
-	printk(KERN_INFO "Error: Could not find null-terminator.");
+	// Not used
 	return 0;
 }
 
 static int gpad_fasync(int fd, struct file *filep, int on){
-	printk(KERN_INFO "gpad_fasync ....");
 	return fasync_helper(fd, filep, on, &async_queue);
 }
 
@@ -171,10 +142,7 @@ static int gpad_fasync(int fd, struct file *filep, int on){
 
 static void __exit template_cleanup(void)
 {
-
-	free_irq(17, NULL);
 	free_irq(18, NULL);
-
 	release_mem_region(GPIO_PC_BASE, 0x24);
 	release_mem_region(GPIO_EXTIPSELL, 0x12);
 	

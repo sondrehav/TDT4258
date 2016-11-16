@@ -1,4 +1,3 @@
-
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 1
 #define _GNU_SOURCE 1
@@ -13,8 +12,8 @@ uint32_t button_value;
 uint32_t last_button_value;
 FILE* gamepadDriver;
 FILE* framebufferDriver;
-
 int handling;
+
 int main(int argc, char *argv[])
 {
 	handling = 0;
@@ -28,14 +27,12 @@ int main(int argc, char *argv[])
 	if(fcntl(fileno(gamepadDriver), F_SETOWN, getpid()) == -1){
 		printf("ERROR2 \n");
 	}
-	if (oflags = fcntl(fileno(gamepadDriver), F_GETFL) == -1){
+	if ((oflags = fcntl(fileno(gamepadDriver), F_GETFL)) == -1){
 		printf("ERROR3 \n");
 	}
 	if (fcntl(fileno(gamepadDriver), F_SETFL, oflags | FASYNC) == -1){
 		printf("ERROR4 \n");
 	}
-	
-	fprintf("Getpid: %x \n",getpid());
 	
 	last_button_value = 0;
 	
@@ -51,8 +48,7 @@ void input_handler(){
 
 	if(handling == 1) return;
 	handling = 1;
-	printf("handler")
-	int t = (int) fgets(&button_value, 4, gamepadDriver);
+	fgets(&button_value, 4, gamepadDriver);
 
 	button_value = 0xffffffff ^ button_value;
 
