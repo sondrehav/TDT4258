@@ -76,17 +76,17 @@ void enterGame(FILE* framebufferDriver) {
 
 void onKeyDown(uint32_t key) {
 	printf("%d\n",key);
-	if((key & 1) == 1) leftPlayer.movingUp = true;
-	else if((key & 4) == 4) leftPlayer.movingDown = true;
-	else if((key & 16) == 16) rightPlayer.movingUp = true;
-	else if((key & 64) == 64) rightPlayer.movingDown = true;
+	if((key & 2) == 2) leftPlayer.movingUp = true;
+	else if((key & 8) == 8) leftPlayer.movingDown = true;
+	else if((key & 32) == 32) rightPlayer.movingUp = true;
+	else if((key & 128) == 128) rightPlayer.movingDown = true;
 }
 
 void onKeyUp(uint32_t key) {
-	if((key & 1) == 1) leftPlayer.movingUp = false;
-	else if((key & 4) == 4) leftPlayer.movingDown = false;
-	else if((key & 16) == 16) rightPlayer.movingUp = false;
-	else if((key & 64) == 64) rightPlayer.movingDown = false;
+	if((key & 2) == 2) leftPlayer.movingUp = false;
+	else if((key & 8) == 8) leftPlayer.movingDown = false;
+	else if((key & 32) == 32) rightPlayer.movingUp = false;
+	else if((key & 128) == 128) rightPlayer.movingDown = false;
 }
 
 void toScreenSpace(uint32_t* x0, uint32_t* y0, uint32_t* x1, uint32_t* y1){
@@ -148,8 +148,8 @@ void drawMovement(PlayerState* player, color colorIn) {
 	uint32_t y0 = player->verticalPosition - PLAYER_HEIGHT / 2;
 	uint32_t y1 = player->verticalPosition + PLAYER_HEIGHT / 2;
 	toScreenSpace(&x0, &y0, &x1, &y1);
-	drawRectangle(x0, y0-5, x1, y0, colorIn);
-	drawRectangle(x0, y1, x1, y1 +5, colorIn);
+	drawRectangle(x0, y0, x1, y0+5, colorIn);
+	drawRectangle(x0, y1-5, x1, y1, colorIn);
 }
 
 void playerMovement(PlayerState *player) {
@@ -212,6 +212,8 @@ void resetScore(){
 	playerLeftScore = 0;
 	drawRectangle(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, blackColor);
 	drawBoard();
+	drawPlayer(&leftPlayer, whiteColor);
+	drawPlayer(&rightPlayer, whiteColor);
 	
 }
 

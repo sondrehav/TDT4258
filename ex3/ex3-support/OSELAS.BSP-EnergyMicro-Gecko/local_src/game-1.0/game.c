@@ -14,10 +14,10 @@ uint32_t last_button_value;
 FILE* gamepadDriver;
 FILE* framebufferDriver;
 
-bool handling;
+int handling;
 int main(int argc, char *argv[])
 {
-	handling = false;
+	handling = 0;
 	int oflags;
 	printf("Hello World, I'm game!\n");
 	gamepadDriver = fopen("dev/GamepadDriver", "r");
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
 
 void input_handler(){
 
-	if(handling) return;
-	handling = true;
-
+	if(handling == 1) return;
+	handling = 1;
+	printf("handler");
 	int t = (int) fgets(&button_value, 4, gamepadDriver);
 
 	button_value = 0xffffffff ^ button_value;
@@ -60,5 +60,5 @@ void input_handler(){
 	onKeyUp((last_button_value ^ button_value) & last_button_value);
 
 	last_button_value = button_value;
-	handling = false;
+	handling = 0;
 }
