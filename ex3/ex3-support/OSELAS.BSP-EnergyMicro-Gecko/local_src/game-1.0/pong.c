@@ -296,7 +296,7 @@ reset ()
 }
 
 void
-gameLogic ()
+borderCheck ()
 {
   if (ball.y <= 0)
     {
@@ -366,7 +366,7 @@ enterGameLoop ()
       ballPlayerTest (&leftPlayer);
       ballPlayerTest (&rightPlayer);
 
-      gameLogic ();
+      borderCheck ();
 
       drawBall (whiteColor);
 
